@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>档案数据库 / VIRTURA Digital Voyage</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-terminal: #0f1117;
+            --bg-panel: #161b22;
+            --border: #30363d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --accent-green: #3fb950;
+            --accent-blue: #58a6ff;
+            --accent-yellow: #f0883e;
+            --accent-red: #f85149;
+            --glow: 0 0 20px rgba(88, 166, 255, 0.3);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: var(--bg-terminal);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 24px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .system-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--accent-blue);
+            margin-bottom: 8px;
+            opacity: 0.8;
+        }
+
+        .db-name {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: var(--text-primary);
+        }
+
+        .status-line {
+            margin-top: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .nav-section {
+            padding: 16px 0;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--text-secondary);
+            padding: 0 20px 8px;
+        }
+
+        .nav-item {
+            display: block;
+            padding: 10px 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            border-left: 3px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--accent-blue);
+        }
+
+        .nav-item.active {
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--accent-blue);
+            border-left-color: var(--accent-blue);
+        }
+
+        .nav-item .badge {
+            float: right;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: rgba(88, 166, 255, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .main-content {
+            flex: 1;
+            height: 100vh;
+            overflow-y: auto;
+            padding: 0;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0d0d0d 100%);
+        }
+
+        .header-bar {
+            background: var(--bg-terminal);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .breadcrumbs {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .breadcrumbs a {
+            color: var(--accent-blue);
+            text-decoration: none;
+        }
+
+        .breadcrumbs .current {
+            color: var(--text-primary);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px 8px 32px;
+            color: var(--text-primary);
+            font-size: 13px;
+            width: 200px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent-blue);
+            box-shadow: var(--glow);
+        }
+
+        .content-area {
+            padding: 32px;
+            max-width: 900px;
+        }
+
+        .entry-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 28px;
+            margin-bottom: 24px;
+        }
+
+        .entry-header {
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .entry-id {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent-yellow);
+            margin-bottom: 4px;
+        }
+
+        .entry-title {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .entry-category {
+            display: inline-block;
+            font-size: 12px;
+            padding: 4px 10px;
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--accent-blue);
+            border-radius: 4px;
+            border: 1px solid rgba(88, 166, 255, 0.3);
+        }
+
+        .entry-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .entry-content p {
+            margin-bottom: 16px;
+        }
+
+        .entry-content ul {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        .entry-content li {
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        .entry-content strong {
+            color: var(--text-primary);
+        }
+
+        .entry-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            margin: 20px 0;
+            border: 1px solid var(--border);
+        }
+
+        .image-caption {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: -12px;
+            margin-bottom: 20px;
+        }
+
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .image-grid-item {
+            position: relative;
+        }
+
+        .image-grid-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            margin: 0;
+        }
+
+        .image-grid-caption {
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-top: 8px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .data-table td, .data-table th {
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            font-size: 14px;
+        }
+
+        .data-table th {
+            background: var(--bg-terminal);
+            color: var(--text-primary);
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            color: var(--text-secondary);
+        }
+
+        .org-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .org-card {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 16px;
+        }
+
+        .org-card h4 {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .org-card .org-en {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent-blue);
+            letter-spacing: 0.1em;
+            margin-bottom: 10px;
+        }
+
+        .org-card p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .freebie-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .freebie-item {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px;
+        }
+
+        .freebie-item h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .freebie-item p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        .timeline-arg {
+            position: relative;
+            padding-left: 28px;
+            margin: 20px 0;
+        }
+
+        .timeline-arg::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item-arg {
+            position: relative;
+            margin-bottom: 16px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .timeline-item-arg::before {
+            content: '';
+            position: absolute;
+            left: -28px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--bg-panel);
+            border: 3px solid var(--accent-blue);
+        }
+
+        .open-questions {
+            background: rgba(240, 136, 62, 0.1);
+            border: 1px solid rgba(240, 136, 62, 0.3);
+            border-radius: 6px;
+            padding: 20px;
+            margin: 24px 0;
+        }
+
+        .open-questions h4 {
+            color: var(--accent-yellow);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .open-questions ul {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .open-questions li {
+            font-size: 13px;
+            color: var(--text-secondary);
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .open-questions li::before {
+            content: '?';
+            position: absolute;
+            left: 0;
+            color: var(--accent-yellow);
+            font-weight: 700;
+        }
+
+        .footer-info {
+            margin-top: 40px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .proj-card {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .proj-card h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        .proj-card a {
+            color: var(--accent-blue);
+            text-decoration: none;
+            font-size: 12px;
+        }
+
+        .proj-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin: 8px 0;
+        }
+
+        .proj-tags {
+            margin-top: 12px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .proj-tag {
+            font-size: 11px;
+            padding: 3px 8px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            color: var(--text-secondary);
+        }
+
+        .visual-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .visual-chip {
+            padding: 8px 14px;
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .visual-chip strong {
+            color: var(--text-primary);
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .gallery-item {
+            background: var(--bg-terminal);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+            margin: 0;
+            border: none;
+            border-radius: 0;
+        }
+
+        .gallery-item-caption {
+            padding: 12px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 900px) {
+            body {
+                flex-direction: column;
+                overflow-y: auto;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                max-height: 50vh;
+            }
+
+            .main-content {
+                height: auto;
+                overflow-y: visible;
+            }
+
+            .header-bar {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+
+            .content-area {
+                padding: 20px 16px;
+            }
+
+            .org-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .entry-title {
+                font-size: 24px;
+            }
+
+            .image-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .gallery-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            }
+        }
+
+        .scan-prompt {
+            background: linear-gradient(135deg, rgba(63, 185, 80, 0.1) 0%, transparent 100%);
+            border: 1px solid rgba(63, 185, 80, 0.3);
+            border-radius: 6px;
+            padding: 20px;
+            margin: 24px 0;
+            text-align: center;
+        }
+
+        .scan-prompt .qrcode-placeholder {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 12px;
+            background: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: #000;
+        }
+
+        .scan-prompt p {
+            font-size: 14px;
+            color: var(--accent-green);
+            margin: 0;
+        }
+
+        .access-level {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-left: 12px;
+        }
+
+        .level-public {
+            background: rgba(63, 185, 80, 0.2);
+            color: var(--accent-green);
+            border: 1px solid rgba(63, 185, 80, 0.4);
+        }
+
+        .level-classified {
+            background: rgba(248, 81, 73, 0.2);
+            color: var(--accent-red);
+            border: 1px solid rgba(248, 81, 73, 0.4);
+        }
+
+        .gallery-section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 16px 0 24px;
+            color: var(--text-primary);
+        }
+
+        .gallery-category {
+            margin-bottom: 32px;
+        }
+
+        .gallery-category-title {
+            font-size: 14px;
+            color: var(--accent-blue);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="system-title">Space Transfer Bureau</div>
+            <div class="db-name">Lost Property Database</div>
+            <div class="status-line">
+                <span class="status-dot"></span>
+                System Online
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Core Rules</div>
+            <a class="nav-item active" data-target="rules" onclick="showEntry('rules')">
+                宇宙核心规则
+                <span class="badge">5</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Organizations</div>
+            <a class="nav-item" data-target="orgs" onclick="showEntry('orgs')">
+                组织机构
+                <span class="badge">4</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Locations</div>
+            <a class="nav-item" data-target="cyania" onclick="showEntry('cyania')">
+                赛尼亚岛
+                <span class="badge">1</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Anomalies</div>
+            <a class="nav-item" data-target="greenhouse" onclick="showEntry('greenhouse')">
+                箱中温室
+                <span class="badge">1</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Visual System</div>
+            <a class="nav-item" data-target="visual" onclick="showEntry('visual')">
+                视觉方法论
+                <span class="badge">2</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">ARG Design</div>
+            <a class="nav-item" data-target="arg" onclick="showEntry('arg')">
+                侵入现实设计
+                <span class="badge">3</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Artist</div>
+            <a class="nav-item" data-target="artist" onclick="showEntry('artist')">
+                创作者档案
+                <span class="badge">1</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Gallery</div>
+            <a class="nav-item" data-target="gallery" onclick="showEntry('gallery')">
+                项目图库
+                <span class="badge">46</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <div class="nav-title">Open Questions</div>
+            <a class="nav-item" data-target="questions" onclick="showEntry('questions')">
+                待解问题
+                <span class="badge">7</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header-bar">
+            <div class="breadcrumbs" id="breadcrumbs">
+                <a href="#" onclick="showEntry('rules')">Database</a> / <span class="current" id="breadcrumb-current">宇宙核心规则</span>
+            </div>
+            <div class="search-box">
+                <span style="position:absolute; left:10px; top:8px; color:var(--text-secondary);">🔍</span>
+                <input type="text" placeholder="Search archive..." id="searchInput" onkeyup="searchArchive()">
+            </div>
+        </div>
+
+        <div class="content-area">
+            <div id="rules" class="entry-container">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">RULE-001 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">数字洋流</h1>
+                        <span class="entry-category">基础规则</span>
+                    </div>
+                    <div class="entry-content">
+                        <p>数字洋流是整个 VIRTURA 宇宙中最基础的流动媒介。</p>
+                        <p>它既像网络，又像海流；既像数据迁移通道，又像空间传输介质。不同空间节点、驻泊地、温室舱、旅居目的地和中转容器，都会通过数字洋流建立连接。</p>
+                        <p>所有空间的生成、复制、运输、丢失都发生在数字洋流之中。</p>
+                    </div>
+                </div>
+
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">RULE-002 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">潜航系统</h1>
+                        <span class="entry-category">基础规则</span>
+                    </div>
+                    <div class="entry-content">
+                        <p>为了在数字洋流中长期稳定航行，一套潜航系统被建立起来。</p>
+                        <p><strong>负责范围：</strong></p>
+                        <ul>
+                            <li>空间节点之间的迁移</li>
+                            <li>旅客与维护人员的通行</li>
+                            <li>便携空间容器的运输</li>
+                            <li>环境样本与记忆片段的封存</li>
+                            <li>异常事件的回收与登记</li>
+                        </ul>
+                        <p>潜航系统维持着整个数字航行网络的秩序。</p>
+                    </div>
+                </div>
+
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">RULE-003 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">目的地节点</h1>
+                        <span class="entry-category">基础规则</span>
+                    </div>
+                    <div class="entry-content">
+                        <p>某些空间被开发、维护并稳定下来，成为可驻留、可游玩、可体验的目的地节点。</p>
+                        <p>这些节点表面上可被理解为虚拟景区、旅居地、实验空间或沉浸式岛屿，深层上则是数字洋流系统中的稳定港口。</p>
+                        <p>赛尼亚岛数字旅居地就是其中之一。</p>
+                    </div>
+                </div>
+
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">RULE-004 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">便携空间容器</h1>
+                        <span class="entry-category">基础规则</span>
+                    </div>
+                    <div class="entry-content">
+                        <p>在这套宇宙中，空间并不总是固定存在。</p>
+                        <p>有些空间被压缩、封存、编码后，可以装入便携式容器。这些容器可能表现为手提箱、设备箱、收纳舱、培养仓、珠宝盒、档案匣等。</p>
+                        <p>它们不是普通器物，而是<strong>"小型空间"的物质形态</strong>。</p>
+                    </div>
+                </div>
+
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">RULE-005 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">复制错误与异常投递</h1>
+                        <span class="entry-category">基础规则</span>
+                    </div>
+                    <div class="entry-content">
+                        <p>由于空间复制、中转协议、临时缓存和环境封存过程中的不稳定性，某些容器可能在错误时间、错误地点或错误维度中出现。</p>
+                        <p>当这种情况发生时，现实世界会短暂接收到来自数字宇宙的遗失物。</p>
+                        <p>ARG 式的侵入现实事件，即由此产生。</p>
+                        <p><strong>箱中温室</strong>就是一个典型案例。</p>
+                    </div>
+                </div>
+
+                <div class="footer-info">
+                    <span>VIRTURA Digital Voyage Archive v1.0</span>
+                    <span>Last updated: 2025-04</span>
+                </div>
+            </div>
+
+            <div id="orgs" class="entry-container hidden">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">ORG-001 to ORG-004 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">主要组织机构</h1>
+                        <span class="entry-category">组织架构</span>
+                    </div>
+                    <div class="entry-content">
+                        <div class="org-grid">
+                            <div class="org-card">
+                                <h4>北流空间开发集团</h4>
+                                <div class="org-en">North Current Spatial Development Group</div>
+                                <p>赛尼亚岛数字旅居地背后的开发与建设方，负责目的地选址、空间开发、景观建模与环境资产管理。对外形象专业、克制、偏高端。</p>
+                            </div>
+                            <div class="org-card">
+                                <h4>松涧目的地</h4>
+                                <div class="org-en">PineBrook Destinations</div>
+                                <p>面向公众的旅居品牌，负责呈现赛尼亚岛地图、空间说明、建筑美学与旅居体验。公众看到的空间分区皆归于此体系。</p>
+                            </div>
+                            <div class="org-card">
+                                <h4>数据洋流潜航署</h4>
+                                <div class="org-en">Digital Current Navigation Division</div>
+                                <p>维护数字洋流航行秩序的系统机构，负责旅客中转、路线维护和空间容器运输，是基础设施管理者。</p>
+                            </div>
+                            <div class="org-card">
+                                <h4>空间转换机构</h4>
+                                <div class="org-en">Spatial Transfer Bureau</div>
+                                <p>负责异常物件登记与回收。现实出现来自数字宇宙的遗失物时，它通常是最先留下痕迹的组织。箱中温室失物记录与此相关。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-info">
+                    <span>VIRTURA Digital Voyage Archive v1.0</span>
+                    <span>Last updated: 2025-04</span>
+                </div>
+            </div>
+
+            <div id="cyania" class="entry-container hidden">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">LOC-001 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">赛尼亚岛数字旅居地</h1>
+                        <span class="entry-category">目的地节点</span>
+                    </div>
+                    <div class="entry-content">
+                        <p><strong>表层定义：</strong>赛尼亚岛数字旅居地是一座模拟挪威峡湾景观的虚拟北欧旅居岛屿。它被设计为一处能够长期驻留、游玩、探索与感受的目的地，融合北极圈地貌、峡湾气候、北欧岛屿风景与东方静谧美学。</p>
+                        <p><strong>深层定义：</strong>在更深层的世界观中，赛尼亚岛不是一座普通岛屿，而是数字洋流中的一个驻泊港。它相对稳定、风貌清晰、环境宜居，因此成为旅客、维护员、研究型乘客和长期停靠者愿意选择的目的地之一。</p>
+                        <p><strong>当前公开入口：</strong>赛尼亚岛目前最公开、最低门槛的入口是 Minecraft 版本。用户可以作为普通游客或玩家进入岛屿，沿地图中标注的路径、村落、山海与旅居建筑进行探索。这使赛尼亚岛具备真实可游玩的特性，而不是停留于概念说明。</p>
+                        <p><strong>后续可扩展入口：</strong></p>
+                        <ul>
+                            <li>网页导览版本</li>
+                            <li>高斯重建版本</li>
+                            <li>Apple Vision Pro 近身体验版本</li>
+                            <li>角色化导览版本</li>
+                            <li>ARG 失物入口版本</li>
+                        </ul>
+
+                        <p><strong>已知空间分区：</strong></p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>名称</th>
+                                    <th>类型</th>
+                                    <th>描述</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>松根堂</strong></td>
+                                    <td>公共空间</td>
+                                    <td>中心接待与休憩区</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>双镜池</strong></td>
+                                    <td>自然景观</td>
+                                    <td>湖泊镜面景观</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>高竹径</strong></td>
+                                    <td>步道</td>
+                                    <td>竹林步道</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>极光观测点</strong></td>
+                                    <td>观景点</td>
+                                    <td>北极光观测位置</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>白崖崖边小馆</strong></td>
+                                    <td>餐饮</td>
+                                    <td>崖边咖啡馆</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>栖檐茶亭</strong></td>
+                                    <td>休憩</td>
+                                    <td>中式茶亭</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="footer-info">
+                    <span>VIRTURA Digital Voyage Archive v1.0</span>
+                    <span>Last updated: 2025-04</span>
+                </div>
+            </div>
+
+            <div id="greenhouse" class="entry-container hidden">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">ANI-001 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">箱中温室</h1>
+                        <span class="entry-category">异常物 / 便携空间容器</span>
+                    </div>
+                    <div class="entry-content">
+                        <p><strong>定义：</strong>箱中温室是一件来自赛尼亚岛宇宙中的便携温室培养舱。它外观上是一只手提箱，内部却储存着植物性记忆、环境样本、局部温室结构和一段被压缩的驻留空间。</p>
+
+                        <img src="Pic/一滴水涌现的花园 滴流早期概念定稿图 2504.png" alt="滴流早期概念设计">
+                        <div class="image-caption">滴流项目早期概念图 - 数字自然与几何结构的探索</div>
+
+                        <p><strong>原属关系：</strong>它原本属于一位在赛尼亚岛长期驻留的旅客（身份待确认），或研究型停泊者。该旅客将自身在冰岛、北方植物园、温室空间、旅行过程中采集到的图像、湿度、环境参数与局部空间感受整理、保存，并封存于这只便携温室舱中。</p>
+
+                        <img src="Pic/完成了从Blender到Apple Vision Pro的3D空间视频工作流 通过基础相机设置 将音画互动的作品以SBS（左右3D）格式通过达芬奇输出 在Vision Pro中呈现出理想的立体效果 过程简单直观 适合创作实验2.jpg" alt="Apple Vision Pro 工作流测试">
+                        <div class="image-caption">Blender → Vision Pro 3D空间视频工作流测试</div>
+
+                        <p><strong>异常事件：</strong>在一次空间复制或节点中转中，该箱体未能按预定路径回到赛尼亚岛某处驻留空间，而是错误脱离系统，进入现实世界。从此，它既是一件艺术作品，也是一件世界观证物，更是现实与数字宇宙发生接缝的破口。</p>
+
+                        <p><strong>体验分层：</strong></p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>层面</th>
+                                    <th>体验内容</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>现实层面</strong></td>
+                                    <td>观众看到一只经过改造的遗失手提箱，带有运输痕迹与标签</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Vision Pro 层面</strong></td>
+                                    <td>观者看到箱体内部逐渐展开出完整的温室空间动画</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>网页 ARG 层面</strong></td>
+                                    <td>观者可扫码查看失物记录、机构文档，追踪旅客痕迹</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>深层 ARG</strong></td>
+                                    <td>可能进一步被引导认领、追查或进入更深层入口</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <p><strong>项目阶段：</strong></p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>阶段</th>
+                                    <th>状态</th>
+                                    <th>内容</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Phase 1</td>
+                                    <td>✅ 进行中</td>
+                                    <td>实体箱体 + Vision Pro 动画原型</td>
+                                </tr>
+                                <tr>
+                                    <td>Phase 2</td>
+                                    <td>🔄 规划中</td>
+                                    <td>网页端数字孪生与档案入口</td>
+                                </tr>
+                                <tr>
+                                    <td>Phase 3</td>
+                                    <td>⏳ 待开发</td>
+                                    <td>赛尼亚岛官方物料更新</td>
+                                </tr>
+                                <tr>
+                                    <td>Phase 4</td>
+                                    <td>⏳ 待开发</td>
+                                    <td>原生 visionOS 体验升级</td>
+                                </tr>
+                                <tr>
+                                    <td>Phase 5</td>
+                                    <td>⏳ 待开发</td>
+                                    <td>ARG 侵入现实完整结构</td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="scan-prompt">
+                            <div class="qrcode-placeholder">
+                                QR Code<br>Space Transfer Bureau
+                            </div>
+                            <p>Scan to access full report</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-info">
+                    <span>VIRTURA Digital Voyage Archive v1.0</span>
+                    <span>Last updated: 2025-04</span>
+                </div>
+            </div>
+
+            <div id="visual" class="entry-container hidden">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">VIS-001 / VIS-002 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">视觉系统档案</h1>
+                        <span class="entry-category">视觉设计</span>
+                    </div>
+                    <div class="entry-content">
+                        <p><strong>核心方法论：</strong>这个宇宙的视觉不应是单一的"自然主义"或"纯科技感"。它的识别度来自多种层次的叠加。</p>
+
+                        <img src="Pic/VRPLAY 2025 world remix xr黑客松 透明底线框交叉代码快坐标系cd.png" alt="VRPLAY 主视觉设计">
+                        <div class="image-caption">VRPLAY 2025 XR Hackathon 主视觉设计 - 线框结构与代码坐标系</div>
+
+                        <p><strong>元素层级：</strong></p>
+                        <div class="visual-chips">
+                            <div class="visual-chip"><strong>基底 •</strong> 北欧自然地貌</div>
+                            <div class="visual-chip"><strong>氛围 •</strong> 东方静谧空间感</div>
+                            <div class="visual-chip"><strong>结构 •</strong> 线框与几何壳体</div>
+                            <div class="visual-chip"><strong>图层 •</strong> 漂浮代码与系统UI</div>
+                            <div class="visual-chip"><strong>气质 •</strong> 复古数字语言 / Y2K</div>
+                            <div class="visual-chip"><strong>质感 •</strong> 虹彩圆盘 + 半透明板</div>
+                            <div class="visual-chip"><strong>内容 •</strong> 高斯植物 + 点云花园</div>
+                        </div>
+
+                        <div class="image-grid">
+                            <div class="image-grid-item">
+                                <img src="Pic/VRPLAY WORLD REMIX XR HACKATHON 2025  BRAND visual art  VI design2.jpg" alt="VI设计">
+                                <div class="image-grid-caption">品牌视觉设计 - 版本 2</div>
+                            </div>
+                            <div class="image-grid-item">
+                                <img src="Pic/VRPLAY WORLD REMIX XR HACKATHON 2025  BRAND visual art  VI design3.jpg" alt="VI设计">
+                                <div class="image-grid-caption">品牌视觉设计 - 版本 3</div>
+                            </div>
+                        </div>
+
+                        <p style="margin-top: 20px;">这种视觉方法既能服务于赛尼亚岛的目的地宣传，也能服务于异常物件、机构页面与 Apple Vision Pro 空间展开动画。</p>
+                    </div>
+                </div>
+
+                <div class="footer-info">
+                    <span>VIRTURA Digital Voyage Archive v1.0</span>
+                    <span>Last updated: 2025-04</span>
+                </div>
+            </div>
+
+            <div id="arg" class="entry-container hidden">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">ARG-001 / ARG-002 / ARG-003 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">侵入现实设计</h1>
+                        <span class="entry-category">体验设计</span>
+                    </div>
+                    <div class="entry-content">
+                        <p><strong>ARG 完整体验流程：</strong></p>
+                        <div class="timeline-arg">
+                            <div class="timeline-item-arg">观者展览现场发现箱子</div>
+                            <div class="timeline-item-arg">看到箱外 QR Code</div>
+                            <div class="timeline-item-arg">扫码进入空间转换机构失物登记页面</div>
+                            <div class="timeline-item-arg">读取失物报告，了解这是什么</div>
+                            <div class="timeline-item-arg">发现链接可进入赛尼亚岛介绍</div>
+                            <div class="timeline-item-arg">发现创作者其他实验项目痕迹</div>
+                            <div class="timeline-item-arg">（可选）解锁更多数字赠品</div>
+                            <div class="timeline-item-arg">（深度）发现更多异常，意识到宇宙真实存在</div>
+                        </div>
+
+                        <p style="margin-top: 24px;"><strong>实体扫码体验：</strong></p>
+                        <p>箱子实体外部贴有 <strong>空间转换机构</strong> 失物登记二维码。扫码后进入网页：</p>
+                        <ol>
+                            <li><strong>登录界面</strong> —— 模拟机构内网，增强真实感</li>
+                            <li><strong>失物档案页</strong> —— 显示失物编号、发现地点、投递错误记录、原属旅客信息（部分加密）、相关链接</li>
+                            <li><strong>可下载内容区域</strong> —— 数字赠品下载</li>
+                        </ol>
+
+                        <p style="margin-top: 24px;"><strong>数字赠品设计：</strong></p>
+                        <p>扫码后可获取一系列来自赛尼亚岛的"数字旅居赠品"：</p>
+                        <div class="freebie-grid">
+                            <div class="freebie-item">
+                                <h4>数字船票</h4>
+                                <p>赛尼亚岛数字洋流潜航船票电子版</p>
+                            </div>
+                            <div class="freebie-item">
+                                <h4>旅居手册</h4>
+                                <p>赛尼亚岛导览手册 PDF</p>
+                            </div>
+                            <div class="freebie-item">
+                                <h4>冰箱贴壁纸</h4>
+                                <p>印有岛标的手机壁纸</p>
+                            </div>
+                            <div class="freebie-item">
+                                <h4>数字转换票据</h4>
+                                <p>空间转换机构登记收据</p>
+                            </div>
+                            <div class="freebie-item">
+                                <h4>气味采样文件</h4>
+                                <p>各区域气味参数文字记录</p>
+                            </div>
+                            <div class="freebie-item">
+                                <h4>便携拖鞋 + 牙刷</h4>
+                                <p>幽默设计：数字旅居备品</p>
+                            </div>
+                        </div>
+                        <p style="margin-top: 16px;">这些设计强化了"赛尼亚岛真实存在"的 ARG 浸入感。</p>
+                    </div>
+                </div>
+
+                <div class="footer-info">
+                    <span>VIRTURA Digital Voyage Archive v1.0</span>
+                    <span>Last updated: 2025-04</span>
+                </div>
+            </div>
+
+            <div id="artist" class="entry-container hidden">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">ART-001 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">创作者档案</h1>
+                        <span class="entry-category">创作者信息</span>
+                    </div>
+                    <div class="entry-content">
+                        <img src="Pic/ewanqian.jpg" alt="钱誉文 / Ewan Qian">
+                        <div class="image-caption">钱誉文 / Ewan Qian - 新媒体艺术家</div>
+
+                        <p><strong>钱誉文（Ewan Qian）</strong>，新媒体艺术家，空间影像创作者，现场视觉制作人，VIRTURA Collective 发起人。</p>
+
+                        <p>研究方向集中在：空间叙事、数字旅居、AI 协作创作、交互装置、跨媒介实验。</p>
+
+                        <p>长期构建"VIRTURA 数字航行宇宙"这一开放世界观，通过不同项目逐步扩展其边界。</p>
+
+                        <div class="image-grid">
+                            <div class="image-grid-item">
+                                <img src="Pic/VIRTURA团队成员EWAN 和 SIHUI 在UFO Terminal 未知终端测试 202504.jpg" alt="UFO Terminal 测试">
+                                <div class="image-grid-caption">UFO Terminal 创作营现场测试</div>
+                            </div>
+                            <div class="image-grid-item">
+                                <img src="Pic/游戏化ai生活解构师  ai agent驱动的创意实践工作坊，杭州中心美术馆。新媒体艺术家模拟器参展延伸工作坊 合影.jpg" alt="工作坊合影">
+                                <div class="image-grid-caption">巴别瓶展 创作者工作坊合影</div>
+                            </div>
+                        </div>
+
+                        <p style="margin-top: 24px;"><strong>过往项目：</strong></p>
+
+                        <div class="proj-card">
+                            <h3>新媒体艺术家模拟器</h3>
+                            <a href="https://github.com/ewanqian/new-media-artist-simulator" target="_blank">github.com/ewanqian/new-media-artist-simulator</a>
+
+                            <img src="Pic/新媒体艺术家模拟器.jpg" alt="新媒体艺术家模拟器">
+                            <div class="image-caption">项目封面</div>
+
+                            <img src="Pic/新媒体艺术家模拟器界面.jpg" alt="新媒体艺术家模拟器界面">
+                            <div class="image-caption">游戏界面 - 属性成长系统</div>
+
+                            <p>AI 驱动的交互式生涯模拟游戏，以新媒体艺术家的职业成长为核心，融合媒体艺术理论、行业生态、职业选择、创意实践。玩家在 AI 时代的虚无中寻找创作的价值。</p>
+                            <div class="proj-tags">
+                                <span class="proj-tag">游戏</span>
+                                <span class="proj-tag">AI 协作</span>
+                                <span class="proj-tag">交互式作品</span>
+                            </div>
+                        </div>
+
+                        <div class="proj-card">
+                            <h3>CURATOR 关系模拟实验</h3>
+                            <a href="https://github.com/ewanqian/2604-datingappCURATOR" target="_blank">github.com/ewanqian/2604-datingappCURATOR</a>
+
+                            <div class="image-grid" style="margin: 16px 0;">
+                                <div class="image-grid-item">
+                                    <img src="Pic/datingapp CURATOR 网页游戏截图.jpg" alt="CURATOR 界面">
+                                    <div class="image-grid-caption">发现页面</div>
+                                </div>
+                                <div class="image-grid-item">
+                                    <img src="Pic/datingapp CURATOR 网页游戏截图1.jpg" alt="CURATOR 界面">
+                                    <div class="image-grid-caption">匹配界面</div>
+                                </div>
+                            </div>
+
+                            <p>以移动端约会应用界面为壳，结合角色资料、聊天、相册、动态与黑色幽默分支，模拟一种既亲密又充满误读的关系体验。表面像社交软件，实际是单人可玩的角色关系模拟器。</p>
+                            <div class="proj-tags">
+                                <span class="proj-tag">网页实验</span>
+                                <span class="proj-tag">愚人节项目</span>
+                                <span class="proj-tag">关系研究</span>
+                            </div>
+                        </div>
+
+                        <div class="proj-card">
+                            <h3>滴流 DROP / FLOW</h3>
+
+                            <img src="Pic/DROP FLOW A continuous emergence BY VIRTURA IN UFO TERMINAL CREATION CAMP 2025.jpeg" alt="DROP FLOW">
+                            <div class="image-caption">DROP FLOW - 持续涌现 项目海报</div>
+
+                            <div class="image-grid">
+                                <div class="image-grid-item">
+                                    <img src="Pic/一滴水涌现的花园 滴流早期概念定稿图 250419 (2).png" alt="概念设计">
+                                    <div class="image-grid-caption">概念设计</div>
+                                </div>
+                                <div class="image-grid-item">
+                                    <img src="Pic/一滴水涌现的花园 滴流早期概念定稿图 250426.png" alt="概念设计">
+                                    <div class="image-grid-caption">概念设计 - 250426</div>
+                                </div>
+                            </div>
+
+                            <p>围绕实时音画互动、空间迁移与数字自然叙事展开的长期系列，持续在演出视觉、沉浸式空间与多版本展示之间发展。该项目参与 2025「流光绘影」光影科技艺术节并获得优秀作品奖。</p>
+                            <div class="proj-tags">
+                                <span class="proj-tag">实时视觉</span>
+                                <span class="proj-tag">沉浸式空间</span>
+                                <span class="proj-tag">数字自然</span>
+                            </div>
+                        </div>
+
+                        <div class="proj-card">
+                            <h3>个人作品集</h3>
+                            <a href="https://ewanqian.github.io/portfolio/" target="_blank">ewanqian.github.io/portfolio</a>
+                            <p>完整的作品档案与制作服务介绍，可以访问作品集网站了解更多。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-info">
+                    <span>VIRTURA Digital Voyage Archive v1.0</span>
+                    <span>Last updated: 2025-04</span>
+                </div>
+            </div>
+
+            <div id="gallery" class="entry-container hidden">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">GAL-001 <span class="access-level level-public">Public Access</span></div>
+                        <h1 class="entry-title">项目图库</h1>
+                        <span class="entry-category">过程图片档案</span>
+                    </div>
+                    <div class="entry-content">
+                        <p>按类别整理的项目过程图片、工作现场与视觉实验记录。</p>
+
+                        <div class="gallery-category">
+                            <div class="gallery-category-title">概念设计 · 滴流 / 箱中温室</div>
+                            <div class="gallery-grid">
+                                <div class="gallery-item">
+                                    <img src="Pic/一滴水涌现的花园 滴流早期概念图.jpg" alt="concept">
+                                    <div class="gallery-item-caption">一滴水涌现的花园 - 早期概念图</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/一滴水涌现的花园 滴流早期概念定稿图 2504.png" alt="concept">
+                                    <div class="gallery-item-caption">概念定稿 - 2504</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/一滴水涌现的花园 滴流早期概念定稿图 250419 (1).png" alt="concept">
+                                    <div class="gallery-item-caption">概念定稿 - 250419 (1)</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/一滴水涌现的花园 滴流早期概念定稿图 250419 (2).png" alt="concept">
+                                    <div class="gallery-item-caption">概念定稿 - 250419 (2)</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/一滴水涌现的花园 滴流早期概念定稿图 250419 (3).png" alt="concept">
+                                    <div class="gallery-item-caption">概念定稿 - 250419 (3)</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/一滴水涌现的花园 滴流早期概念定稿图 250426.png" alt="concept">
+                                    <div class="gallery-item-caption">概念定稿 - 250426</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VIRTURA_Collective_滴流项目图片与介绍.jpg" alt="concept">
+                                    <div class="gallery-item-caption">项目介绍图</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gallery-category">
+                            <div class="gallery-category-title">VRPLAY 2025 XR Hackathon 视觉设计</div>
+                            <div class="gallery-grid">
+                                <div class="gallery-item">
+                                    <img src="Pic/VRPLAY 2025 world remix xr黑客松 高清.png" alt="vrplay">
+                                    <div class="gallery-item-caption">高清主视觉</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VRPLAY 2025 world remix xr黑客松 透明底线框交叉代码快坐标系cd.png" alt="vrplay">
+                                    <div class="gallery-item-caption">线框坐标系设计</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/credit：VRPLAY 2025 world remix xr黑客松 图片是由人工智能生成的图片求得的高斯三维内容制作的主视觉。.jpg" alt="vrplay">
+                                    <div class="gallery-item-caption">AI生成高斯三维主视觉</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/credit：VRPLAY 2025 world remix xr黑客松 图片是由人工智能生成的图片求得的高斯三维内容制作的主视觉2.jpg" alt="vrplay">
+                                    <div class="gallery-item-caption">AI生成高斯三维主视觉 - 版本 2</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VRPLAY WORLD REMIX XR HACKATHON 2025  BRAND visual art  VI design.jpg" alt="vrplay">
+                                    <div class="gallery-item-caption">品牌 VI 设计</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VRPLAY WORLD REMIX XR HACKATHON 2025  BRAND visual art  VI design2.jpg" alt="vrplay">
+                                    <div class="gallery-item-caption">品牌 VI 设计 2</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VRPLAY WORLD REMIX XR HACKATHON 2025  BRAND visual art  VI design3.jpg" alt="vrplay">
+                                    <div class="gallery-item-caption">品牌 VI 设计 3</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VRPLAY WORLD REMIX XR HACKATHON 2025  BRAND visual art  VI design4 像游戏包装盒的两方向连续的手提袋设计.jpg" alt="vrplay">
+                                    <div class="gallery-item-caption">手提袋设计</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gallery-category">
+                            <div class="gallery-category-title">CURATOR 关系模拟实验</div>
+                            <div class="gallery-grid">
+                                <div class="gallery-item">
+                                    <img src="Pic/datingapp 网页游戏截图.jpg" alt="datingapp">
+                                    <div class="gallery-item-caption">首页截图</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/datingapp CURATOR 网页游戏截图.jpg" alt="datingapp">
+                                    <div class="gallery-item-caption">发现页</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/datingapp CURATOR 网页游戏截图1.jpg" alt="datingapp">
+                                    <div class="gallery-item-caption">匹配列表</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/datingapp CURATOR 网页游戏截图2.jpg" alt="datingapp">
+                                    <div class="gallery-item-caption">聊天界面</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/datingapp CURATOR 网页游戏截图3.jpg" alt="datingapp">
+                                    <div class="gallery-item-caption">个人资料页</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/datingapp CURATOR 网页游戏截图4.jpg" alt="datingapp">
+                                    <div class="gallery-item-caption">相册界面</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gallery-category">
+                            <div class="gallery-category-title">新媒体艺术家模拟器</div>
+                            <div class="gallery-grid">
+                                <div class="gallery-item">
+                                    <img src="Pic/新媒体艺术家模拟器.jpg" alt="simulator">
+                                    <div class="gallery-item-caption">项目封面</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/新媒体艺术家模拟器界面.jpg" alt="simulator">
+                                    <div class="gallery-item-caption">游戏界面</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gallery-category">
+                            <div class="gallery-category-title">工作坊 · 巴别瓶展</div>
+                            <div class="gallery-grid">
+                                <div class="gallery-item">
+                                    <img src="Pic/游戏化ai生活解构师  ai agent驱动的创意实践工作坊，杭州中心美术馆。新媒体艺术家模拟器参展延伸工作坊 合影.jpg" alt="workshop">
+                                    <div class="gallery-item-caption">全体合影</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/游戏化ai生活解构师  ai agent驱动的创意实践工作坊，杭州中心美术馆。新媒体艺术家模拟器参展延伸工作坊。.jpg" alt="workshop">
+                                    <div class="gallery-item-caption">工作坊现场</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/游戏化ai生活解构师  ai agent驱动的创意实践工作坊，杭州中心美术馆。新媒体艺术家模拟器参展延伸工作坊参加者发言场景讲话 和 ewan 合影.jpg" alt="workshop">
+                                    <div class="gallery-item-caption">分享合影</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/游戏化ai生活解构师  ai agent驱动的创意实践工作坊，杭州中心美术馆。新媒体艺术家模拟器参展延伸工作坊参加者发言场景讲话2.jpg" alt="workshop">
+                                    <div class="gallery-item-caption">参与者讨论</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/游戏化ai生活解构师  ai agent驱动的创意实践工作坊，杭州中心美术馆。新媒体艺术家模拟器参展延伸工作坊策展人王旖旎 yini 讲话 和 ewan 合影.jpg" alt="workshop">
+                                    <div class="gallery-item-caption">与策展人合影</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gallery-category">
+                            <div class="gallery-category-title">Apple Vision Pro 工作流</div>
+                            <div class="gallery-grid">
+                                <div class="gallery-item">
+                                    <img src="Pic/完成了从Blender到Apple Vision Pro的3D空间视频工作流 通过基础相机设置 将音画互动的作品以SBS（左右3D）格式通过达芬奇输出 在Vision Pro中呈现出理想的立体效果 过程简单直观 适合创作实验.jpg" alt="visionpro">
+                                    <div class="gallery-item-caption">SBS 工作流说明</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/完成了从Blender到Apple Vision Pro的3D空间视频工作流 通过基础相机设置 将音画互动的作品以SBS（左右3D）格式通过达芬奇输出 在Vision Pro中呈现出理想的立体效果 过程简单直观 适合创作实验2.jpg" alt="visionpro">
+                                    <div class="gallery-item-caption">TikTok 截图 - 线框测试</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gallery-category">
+                            <div class="gallery-category-title">现场 · 展览活动</div>
+                            <div class="gallery-grid">
+                                <div class="gallery-item">
+                                    <img src="Pic/CAN Festival 2025 pt.2 @Zhoushan, Zhejiang, China 0.jpg" alt="event">
+                                    <div class="gallery-item-caption">CAN Festival 2025 舟山</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/CAN Festival 2025 pt.2 @Zhoushan, Zhejiang, China 3.jpeg" alt="event">
+                                    <div class="gallery-item-caption">CAN Festival 现场</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/DROP FLOW A continuous emergence BY VIRTURA IN UFO TERMINAL CREATION CAMP 2025.jpeg" alt="event">
+                                    <div class="gallery-item-caption">DROP FLOW 海报</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/IRTURA团队作品将在2025中国杭州艺术与科技双年展开幕式演出合影 .jpg" alt="event">
+                                    <div class="gallery-item-caption">杭州艺术与科技双年展开幕式合影</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VIRTURA团队成员EWAN 和 SIHUI 在UFO Terminal 未知终端测试 202504 2 .jpg" alt="event">
+                                    <div class="gallery-item-caption">UFO Terminal 测试 2</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VIRTURA团队成员EWAN 和 SIHUI 在UFO Terminal 未知终端测试 202504 双人合影 .jpg" alt="event">
+                                    <div class="gallery-item-caption">UFO Terminal 双人合影</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VIRTURA团队成员EWAN 和 SIHUI 在UFO Terminal 未知终端测试 202504.jpg" alt="event">
+                                    <div class="gallery-item-caption">UFO Terminal 现场测试</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VIRTURA团队成员EWAN 在UFO Terminal 未知终端测试 202504 1 .jpg" alt="event">
+                                    <div class="gallery-item-caption">UFO Terminal 测试 1</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VIRTURA团队成员EWAN 在UFO Terminal 未知终端分享 202504.jpg" alt="event">
+                                    <div class="gallery-item-caption">UFO Terminal 分享现场</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/ewan in strawberry music festival 2023.jpg" alt="event">
+                                    <div class="gallery-item-caption">草莓音乐节 2023</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/ewan in timing singal 2025.jpg" alt="event">
+                                    <div class="gallery-item-caption">TIMER 现场 2025</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="gallery-category">
+                            <div class="gallery-category-title">品牌标识</div>
+                            <div class="gallery-grid">
+                                <div class="gallery-item">
+                                    <img src="Pic/VIRTURA 白色.png" alt="brand">
+                                    <div class="gallery-item-caption">VIRTURA Logo 白色版</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/VIRTURA黑色.png" alt="brand">
+                                    <div class="gallery-item-caption">VIRTURA Logo 黑色版</div>
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="Pic/virtura团队参加加载...权限2展览的团队成员头像.jpg" alt="brand">
+                                    <div class="gallery-item-caption">加载...权限2展览 团队头像</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-info">
+                    <span>VIRTURA Digital Voyage Archive v1.0</span>
+                    <span>Last updated: 2025-04</span>
+                </div>
+            </div>
+
+            <div id="questions" class="entry-container hidden">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">OPEN-001 <span class="access-level level-public">Open</span></div>
+                        <h1 class="entry-title">开放问题</h1>
+                        <span class="entry-category">待扩展</span>
+                    </div>
+                    <div class="entry-content">
+                        <p>以下问题目前保留开放，供后续扩展：</p>
+                        <div class="open-questions">
+                            <ul>
+                                <li>箱中温室的旅客具体身份是谁</li>
+                                <li>这段植物性记忆对应哪一处真实采样地</li>
+                                <li>赛尼亚岛上是否存在专门的温室舱群落</li>
+                                <li>空间转换机构是否已注意到这次错误投递</li>
+                                <li>现实世界中是否不止掉出了一只箱子</li>
+                                <li>旅客本人是否仍停留在赛尼亚岛</li>
+                                <li>认领箱体是否会导致更多空间片段泄漏到现实</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="footer-info">
+                    <span>VIRTURA Digital Voyage Archive v1.0</span>
+                    <span>Last updated: 2025-04</span>
+                </div>
+            </div>
+
+            <div id="search-results" class="entry-container hidden">
+                <div class="entry-card">
+                    <div class="entry-header">
+                        <div class="entry-id">Search Results</div>
+                        <h1 class="entry-title">搜索结果</h1>
+                        <span class="entry-category">Query: <span id="search-query"></span></span>
+                    </div>
+                    <div class="entry-content" id="search-content">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showEntry(targetId) {
+            document.querySelectorAll('.entry-container').forEach(el => {
+                el.classList.add('hidden');
+            });
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            const target = document.getElementById(targetId);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+
+            const navItem = document.querySelector(`[data-target="${targetId}"]`);
+            if (navItem) {
+                navItem.classList.add('active');
+            }
+
+            const titles = {
+                'rules': '宇宙核心规则',
+                'orgs': '组织机构',
+                'cyania': '赛尼亚岛',
+                'greenhouse': '箱中温室',
+                'visual': '视觉系统',
+                'arg': '侵入现实设计',
+                'artist': '创作者档案',
+                'gallery': '项目图库',
+                'questions': '开放问题'
+            };
+
+            document.getElementById('breadcrumb-current').textContent = titles[targetId];
+
+            if (targetId !== 'search-results') {
+                document.getElementById('searchInput').value = '';
+            }
+        }
+
+        function searchArchive() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            if (query.length < 2) {
+                const activeNav = document.querySelector('.nav-item.active');
+                if (activeNav) {
+                    showEntry(activeNav.getAttribute('data-target'));
+                }
+                return;
+            }
+
+            document.querySelectorAll('.entry-container').forEach(el => {
+                el.classList.add('hidden');
+            });
+
+            const searchResultsContainer = document.getElementById('search-results');
+            const searchContent = document.getElementById('search-content');
+            const searchQuerySpan = document.getElementById('search-query');
+            searchQuerySpan.textContent = query;
+
+            const entries = [
+                { id: 'RULE-001', title: '数字洋流', category: '基础规则', content: '数字洋流是整个 VIRTURA 宇宙中最基础的流动媒介' },
+                { id: 'RULE-002', title: '潜航系统', category: '基础规则', content: '负责空间迁移、旅客通行与容器运输' },
+                { id: 'RULE-003', title: '目的地节点', category: '基础规则', content: '被开发稳定的可驻留空间，赛尼亚岛就是一例' },
+                { id: 'RULE-004', title: '便携空间容器', category: '基础规则', content: '空间被压缩装入便携容器，箱子就是小型空间的物质形态' },
+                { id: 'RULE-005', title: '复制错误与异常投递', category: '基础规则', content: '错误投递导致遗失物出现在现实世界' },
+                { id: 'ORG-001', title: '北流空间开发集团', category: '组织机构', content: '赛尼亚岛开发建设方' },
+                { id: 'ORG-002', title: '松涧目的地', category: '组织机构', content: '面向公众的旅居品牌' },
+                { id: 'ORG-003', title: '数据洋流潜航署', category: '组织机构', content: '维护航行秩序基础设施管理者' },
+                { id: 'ORG-004', title: '空间转换机构', category: '组织机构', content: '异常物件登记回收，箱中温室与此相关' },
+                { id: 'LOC-001', title: '赛尼亚岛数字旅居地', category: '目的地', content: '模拟挪威峡湾的虚拟北欧旅居岛屿' },
+                { id: 'ANI-001', title: '箱中温室', category: '异常物', content: '错误投递到现实的便携温室培养舱' },
+                { id: 'VIS-001', title: '视觉方法论', category: '视觉系统', content: '多层叠加的视觉语言' },
+                { id: 'ARG-001', title: 'ARG 体验流程', category: '侵入现实', content: '从展览发现箱子到扫码进入档案' },
+                { id: 'PROJ-001', title: '新媒体艺术家模拟器', category: '创作者项目', content: 'AI驱动的艺术生涯模拟游戏' },
+                { id: 'PROJ-002', title: 'CURATOR 关系模拟实验', category: '创作者项目', content: '伪装成约会应用的关系体验实验' }
+            ];
+
+            const results = entries.filter(e =>
+                e.title.toLowerCase().includes(query) ||
+                e.content.toLowerCase().includes(query) ||
+                e.category.toLowerCase().includes(query)
+            );
+
+            if (results.length === 0) {
+                searchContent.innerHTML = '<p>No results found for your search.</p>';
+            } else {
+                let html = '<ul style="margin:0; padding:0; list-style:none;">';
+                results.forEach(r => {
+                    html += `
+                        <li style="padding: 12px 0; border-bottom: 1px solid var(--border);">
+                            <strong style="color: var(--accent-blue); cursor:pointer;" onclick="goToEntryFromSearch('${r.id.toLowerCase().split('-')[0]}')">${r.title}</strong>
+                            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">${r.id} • ${r.category}</div>
+                            <div style="font-size: 13px; color: var(--text-secondary); margin-top: 6px;">${r.content}</div>
+                        </li>
+                    `;
+                });
+                html += '</ul>';
+                searchContent.innerHTML = html;
+            }
+
+            searchResultsContainer.classList.remove('hidden');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('breadcrumb-current').textContent = 'Search';
+        }
+
+        function goToEntryFromSearch(category) {
+            showEntry(category);
+        }
+
+        showEntry('rules');
+    </script>
+</body>
+</html>

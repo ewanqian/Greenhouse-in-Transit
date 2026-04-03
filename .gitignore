@@ -1,0 +1,29 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Dependencies
+node_modules/
+
+# Build
+/dist
+/build
+
+# Large files
+*.pdf
+*.mp4
+*.mov
+*.avi
+
+# Temporary files
+*.tmp
+*.temp
