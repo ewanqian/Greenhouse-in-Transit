@@ -27,3 +27,9 @@ node_modules/
 # Temporary files
 *.tmp
 *.temp
+
+# Scripts
+*.py
+
+# Image extraction
+Extracted_Images/
