@@ -48,74 +48,136 @@
             text-decoration: none;
         }
         .hero {
-            padding: 72px 0 42px;
-            border-bottom: 1px solid #dddddd;
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+        }
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.9;
+            z-index: 0;
+        }
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 100%);
+            z-index: 1;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 900px;
+            padding: 0 28px;
         }
         .eyebrow {
             font-size: 12px;
             letter-spacing: .16em;
             text-transform: uppercase;
-            color: #666;
-            margin-bottom: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 24px;
         }
         h1 {
-            font-size: clamp(40px, 7vw, 92px);
-            line-height: .95;
-            margin: 0 0 18px;
-            letter-spacing: -.05em;
+            font-size: clamp(48px, 10vw, 120px);
+            line-height: 0.9;
+            margin: 0 0 24px;
+            letter-spacing: -.03em;
+            color: #fff;
+            font-weight: 900;
         }
         .subtitle {
-            font-size: 20px;
-            color: #666;
-            max-width: 920px;
+            font-size: 22px;
+            color: rgba(255, 255, 255, 0.9);
+            max-width: 700px;
+            margin: 0 auto 40px;
+            line-height: 1.6;
         }
         .btns {
             display: flex;
-            gap: 12px;
+            gap: 16px;
             flex-wrap: wrap;
-            margin-top: 22px;
+            justify-content: center;
+            margin-top: 32px;
         }
         .btn {
             display: inline-block;
-            padding: 12px 16px;
-            border: 1px solid #111;
-            color: #111;
+            padding: 16px 32px;
+            border: 2px solid #fff;
+            color: #fff;
             font-size: 14px;
             text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            background: #fff;
+            color: #111;
         }
         .btn.primary {
-            background: #111;
+            background: #fff;
+            color: #111;
+        }
+        .btn.primary:hover {
+            background: transparent;
             color: #fff;
         }
         section {
-            padding: 54px 0;
+            padding: 80px 0;
             border-bottom: 1px solid #dddddd;
         }
         h2 {
-            font-size: 30px;
-            line-height: 1.1;
-            margin: 0 0 18px;
-            letter-spacing: -.03em;
+            font-size: 32px;
+            line-height: 1.2;
+            margin: 0 0 20px;
+            letter-spacing: -.02em;
+            font-weight: 700;
         }
         p {
-            margin: 0 0 15px;
+            margin: 0 0 16px;
+            color: #444;
+            line-height: 1.7;
         }
         .two {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 26px;
+            gap: 60px;
+            align-items: start;
         }
         .footer {
-            padding: 36px 0 60px;
+            padding: 48px 0 80px;
             color: #666;
             font-size: 14px;
+            text-align: center;
+        }
+        .footer p {
+            color: #666;
         }
         @media (max-width: 980px) {
             .two {
                 grid-template-columns: 1fr;
+                gap: 40px;
             }
             .links {
                 display: none;
+            }
+            .hero {
+                min-height: 80vh;
+            }
+            h1 {
+                font-size: clamp(36px, 12vw, 80px);
             }
         }
     </style>
@@ -132,14 +194,18 @@
         </div>
     </div>
 
-    <div class="wrap hero">
-        <div class="eyebrow">Portable Spatial Gateway / Senja Digital Retreat Universe</div>
-        <h1>Greenhouse<br>in Transit</h1>
-        <div class="subtitle">箱中温室 — 一件以手提箱为现实入口的空间叙事项目</div>
-        <div class="btns">
-            <a class="btn primary" href="Archive/project-home-v2.html">项目主页</a>
-            <a class="btn" href="Archive/archive-viewer-v2.html">档案查看器</a>
-            <a class="btn" href="README.md">查看文档</a>
+    <div class="hero">
+        <img src="assets/drop-flow-hero.png" alt="一滴水涌现的花园" class="hero-bg">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="eyebrow">Portable Spatial Gateway / Senja Digital Retreat Universe</div>
+            <h1>Greenhouse<br>in Transit</h1>
+            <div class="subtitle">箱中温室 — 一件以手提箱为现实入口的空间叙事项目</div>
+            <div class="btns">
+                <a class="btn primary" href="Archive/project-home-v2.html">项目主页</a>
+                <a class="btn" href="Archive/archive-viewer-v2.html">档案查看器</a>
+                <a class="btn" href="README.md">查看文档</a>
+            </div>
         </div>
     </div>
 
@@ -147,17 +213,17 @@
         <div class="wrap two">
             <div>
                 <h2>项目简介</h2>
-                <p>《箱中温室》是一件以手提箱为现实入口的空间叙事项目。它表面像一件来自北欧数字旅居地的遗失行李，深层上却是一只被命名为“雾庭舱”的便携温室舱：原本属于赛尼亚岛中的一位长期驻留旅客，在一次中转错投后掉入现实。</p>
+                <p>《箱中温室》是一件以手提箱为现实入口的空间叙事项目。它表面像一件来自北欧数字旅居地的遗失行李，深层上却是一只被命名为"雾庭舱"的便携温室舱：原本属于赛尼亚岛中的一位长期驻留旅客，在一次中转错投后掉入现实。</p>
                 <p>观众先看到实体箱体，再从手机端进入项目主页，理解赛尼亚岛、松间、白屿会与雾庭舱之间的关系；之后通过档案查看器进一步读到错投记录、旅客线索和物件说明，最后在 Vision Pro 中短暂看到一座被压缩的温室从箱体内部展开。</p>
             </div>
             <div>
                 <h2>快速导航</h2>
                 <p>项目已整理为以下主要入口：</p>
-                <div class="btns">
-                    <a class="btn" href="Archive/project-home-v2.html">项目主页</a>
-                    <a class="btn" href="Archive/archive-viewer-v2.html">档案查看器</a>
-                    <a class="btn" href="README.md">完整文档</a>
-                    <a class="btn" href="00-overview/world-overview.md">世界观总览</a>
+                <div class="btns" style="justify-content: flex-start;">
+                    <a class="btn" style="border-color: #111; color: #111;" href="Archive/project-home-v2.html">项目主页</a>
+                    <a class="btn" style="border-color: #111; color: #111;" href="Archive/archive-viewer-v2.html">档案查看器</a>
+                    <a class="btn" style="border-color: #111; color: #111;" href="README.md">完整文档</a>
+                    <a class="btn" style="border-color: #111; color: #111;" href="00-overview/world-overview.md">世界观总览</a>
                 </div>
             </div>
         </div>
