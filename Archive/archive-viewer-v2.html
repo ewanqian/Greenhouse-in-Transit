@@ -20,17 +20,6 @@ a{color:var(--accent);text-decoration:none}
 .viewer-header .title{font-size:14px;font-weight:600}
 .viewer-content{flex:1;display:flex;overflow:hidden}
 
-/* 左侧导航 */
-.nav-sidebar{width:280px;border-right:1px solid var(--line);background:var(--panel-2);padding:20px;overflow-y:auto}
-.nav-sidebar .search{width:100%;padding:12px;border:1px solid var(--line);background:#0b1014;color:var(--text);outline:none;margin-bottom:20px;font-size:13px}
-.nav-sidebar .group{margin-bottom:24px}
-.nav-sidebar .group h3{font-size:11px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line)}
-.nav-sidebar .entry{padding:10px 12px;border:1px solid var(--line);margin-bottom:8px;background:var(--panel);cursor:pointer;font-size:13px;transition:all 0.2s}
-.nav-sidebar .entry:hover{border-color:var(--accent)}
-.nav-sidebar .entry.active{border-color:var(--accent);background:rgba(122,183,255,0.1)}
-.nav-sidebar .entry strong{display:block;font-size:14px;margin-bottom:2px}
-.nav-sidebar .entry small{display:block;color:var(--muted);font-size:11px}
-
 /* 中间内容区 */
 .content-area{flex:1;padding:32px 40px;overflow-y:auto;background:var(--bg)}
 .content-area .headline{margin-bottom:28px}
@@ -83,7 +72,6 @@ a{color:var(--accent);text-decoration:none}
 
 /* 响应式 */
 @media (max-width:1200px){
-  .nav-sidebar{width:240px}
   .info-sidebar{width:280px}
   .content-area{padding:24px}
   .content-area .headline h1{font-size:32px}
@@ -92,7 +80,6 @@ a{color:var(--accent);text-decoration:none}
 @media (max-width:900px){
   .app{flex-direction:column}
   .viewer-content{flex-direction:column}
-  .nav-sidebar{width:100%;height:200px;border-right:none;border-bottom:1px solid var(--line)}
   .info-sidebar{display:none}
   .timeline{height:160px}
   .entry-card{width:120px;height:100px}
@@ -109,12 +96,6 @@ a{color:var(--accent);text-decoration:none}
       <a href="project-home-v2.html" style="font-size:13px;">返回项目主页</a>
     </div>
     <div class="viewer-content">
-      <!-- 左侧导航 -->
-      <aside class="nav-sidebar">
-        <input id="search" class="search" placeholder="搜索词条 / Search entries...">
-        <div id="groups"></div>
-      </aside>
-      
       <!-- 中间内容 -->
       <main class="content-area">
         <div id="detail"></div>
@@ -154,50 +135,27 @@ a{color:var(--accent);text-decoration:none}
 const db=[
   {id:'virtura',group:'系统概览',title:'VIRTURA',en:'Digital Voyage Universe',type:'世界观总纲',status:'半公开',parent:'—',summary:'一个由数字洋流、目的地节点、便携空间舱、错投机制与现实侵入事件共同构成的开放宇宙。',body:['在这套世界里，空间不是固定背景，而是可以被封存、运输、复制和重新认领的对象。','赛尼亚岛是一个面向公众开放的停靠节点；而《箱中温室》则是一件让这个世界以失物形式侵入现实的异常证物。'],related:['songjian','senja','mistgarden']},
   {id:'current',group:'系统概览',title:'数字洋流',en:'Digital Current',type:'底层媒介',status:'内部',parent:'VIRTURA',summary:'旅客、记忆、舱体与目的地之间发生迁移的底层流动媒介。',body:['数字洋流不是一个机构，而是一种更接近"海流 + 网络 + 空间缓冲层"的存在。','潮线依附其上运行，转栈署则处理其中出现的异常错投。'],related:['tideline','relay','mistgarden']},
-  {id:'tideline',group:'机构档案',title:'潮线',en:'TIDELINE',type:'航行网络',status:'半深层',parent:'数字洋流',summary:'负责旅客接驳、目的地通行、便携舱体运输与路线维护的航行网络。',body:['它在世界观中的位置更像一条被品牌化的航运系统，而不是充满 lore 的神秘机关。','对于观众来说，潮线最常以票据、通行信息、节点时间和运输记录的形式出现。'],related:['ticket','senja','mistgarden']},
-  {id:'relay',group:'机构档案',title:'转栈署',en:'Relay Bureau',type:'异常机构',status:'内部',parent:'—',summary:'处理错投物、未完成中转、失物登记、回收记录与异常警示的系统部门。',body:['转栈署是这套世界里最适合留下文件痕迹的机构。','在 ARG 层面，它可以通过认领通知、回收警示、状态更新和失败记录慢慢暴露自身存在。'],related:['mistgarden','ticket','passenger']},
+  {id:'tideline',group:'机构档案',title:'潮线',en:'TIDELINE',type:'航行网络',status:'半深层',parent:'数字洋流',summary:'负责旅客接驳、目的地通行、便携舱体运输与路线维护的航行网络。',body:['它在世界观中的位置更像一条被品牌化的航运系统，而不是充满 lore 的神秘机关。','对于观众来说，潮线最常以票据、通行信息、节点时间和运输记录的形式出现。','潮线网络建立于数字洋流的稳定层，主要航行于赛尼亚岛、白屿港、雾岛礁等节点之间。','标准客运航线单程航行时间约为48-72小时，物流航线则根据货物类型有所不同。','主要业务包括：数字空间客运、便携舱体运输、环境记忆转移、数据包裹递送。'],related:['ticket','senja','mistgarden','misdelivery']},
+  {id:'relay',group:'机构档案',title:'转栈署',en:'Relay Bureau',type:'异常机构',status:'内部',parent:'—',summary:'处理错投物、未完成中转、失物登记、回收记录与异常警示的系统部门。',body:['转栈署是这套世界里最适合留下文件痕迹的机构。','在 ARG 层面，它可以通过认领通知、回收警示、状态更新和失败记录慢慢暴露自身存在。','主要职能：异常货物处理、信息战防御、数字内容具象化异常管理、错投事件追踪。','常用术语：数据流异常、具象化泄露、现实侵入、航线偏移、包裹逃逸。'],related:['mistgarden','ticket','passenger','misdelivery']},
   {id:'whiteisle',group:'机构档案',title:'白屿会',en:'White Isle House',type:'持有母体',status:'半公开',parent:'—',summary:'赛尼亚岛及其相关目的地系统背后的持有、策划与长期维护母体。',body:['它比"集团"更像一个安静但权力稳定的背景实体：既持有目的地，也决定空间风格和长期策略。','公众不会频繁直接接触它，但在正式页面、白皮书、合作物料和岛屿背景里，它是不可忽视的名字。'],related:['songjian','senja','archive']},
   {id:'songjian',group:'机构档案',title:'松间',en:'SONGJIAN',type:'旅居品牌',status:'公开',parent:'白屿会',summary:'赛尼亚岛数字旅居地对外的品牌名称，负责风格、地图、空间说明与旅居叙述。',body:['"松间"只保留为一个单名品牌，不再附加"目的地""集团"等功能性后缀。','它更像一套能被感知、停留、带走记忆的旅居语气，而不是单纯运营口径。'],related:['senja','whiteisle','archive']},
-  {id:'senja',group:'地点档案',title:'赛尼亚岛',en:'Senja Digital Retreat',type:'目的地节点',status:'公开',parent:'松间',summary:'模拟挪威峡湾景观的虚拟北欧岛屿，是公众最先进入的表层入口。',body:['Minecraft 版本让公众以玩家身份进入地图；而更深层的网页与头显体验则让岛屿开始承担世界观驻泊地的角色。','赛尼亚岛不只是目的地，它也是旅客停靠、记忆缓冲、物件归还和空间暂存的节点。'],related:['greenhousemodule','mistgarden','ticket']},
-  {id:'greenhousemodule',group:'地点档案',title:'温室模块',en:'Greenhouse Module',type:'受限空间',status:'半公开',parent:'赛尼亚岛',summary:'位于赛尼亚岛内部的植物保育与环境缓冲结构，是雾庭舱最可能的原生归属地之一。',body:['这一词条是本轮建议新增的关键补强点。','一旦温室模块存在，雾庭舱就不再像凭空掉出来的独立装置，而像来自岛屿内部体系的一件真实设备。'],related:['senja','mistgarden','passenger']},
-  {id:'mistgarden',group:'物件档案',title:'雾庭舱',en:'Mistgarden Case',type:'便携温室舱',status:'未认领',parent:'赛尼亚岛宇宙',summary:'项目内部真正的物件名。它是一只便携温室舱，而不是普通行李箱。',body:['对外，项目仍然叫《箱中温室》；对内，这件物就是雾庭舱 MG-17 Portable Conservatory Unit。','它原本属于一位长期驻留旅客，用于保存植物影像、湿度记忆、局部参数和个人化的停留环境；因错投进入现实。'],related:['projecttitle','passenger','ticket','climate','utility']},
+  {id:'senja',group:'地点档案',title:'赛尼亚岛',en:'Senja Digital Retreat',type:'目的地节点',status:'公开',parent:'松间',summary:'模拟挪威峡湾景观的虚拟北欧岛屿，是公众最先进入的表层入口。',body:['Minecraft 版本让公众以玩家身份进入地图；而更深层的网页与头显体验则让岛屿开始承担世界观驻泊地的角色。','赛尼亚岛不只是目的地，它也是旅客停靠、记忆缓冲、物件归还和空间暂存的节点。','岛上主要设施：温室模块、数字港口、记忆档案馆、旅居区、中转中心。'],related:['greenhousemodule','mistgarden','ticket']},
+  {id:'greenhousemodule',group:'地点档案',title:'温室模块',en:'Greenhouse Module',type:'受限空间',status:'半公开',parent:'赛尼亚岛',summary:'位于赛尼亚岛内部的植物保育与环境缓冲结构，是雾庭舱最可能的原生归属地之一。',body:['这一词条是本轮建议新增的关键补强点。','一旦温室模块存在，雾庭舱就不再像凭空掉出来的独立装置，而像来自岛屿内部体系的一件真实设备。','温室模块负责培育和保存数字植物样本，同时作为环境记忆的存储节点。'],related:['senja','mistgarden','passenger']},
+  {id:'mistgarden',group:'物件档案',title:'雾庭舱',en:'Mistgarden Case',type:'便携温室舱',status:'未认领',parent:'赛尼亚岛宇宙',summary:'项目内部真正的物件名。它是一只便携温室舱，用于封存和运输一座微型花园。',body:['对外，项目仍然叫《箱中温室》；对内，这件物就是雾庭舱 MG-17 Portable Conservatory Unit。','它原本属于一位长期驻留旅客，用于保存植物影像、湿度记忆、局部参数和个人化的停留环境；因错投进入现实。','舱体内部封存了一座名为"雾庭"的微型花园，包含多种数字植物样本和环境记忆数据。'],related:['projecttitle','passenger','ticket','climate','utility','misdelivery']},
   {id:'projecttitle',group:'物件档案',title:'箱中温室',en:'Greenhouse in Transit',type:'项目题名',status:'公开',parent:'雾庭舱',summary:'面向公众与策展语境的题名。保留诗性，但不承担装备级识别任务。',body:['这个名字负责把观众吸引到"箱子里真的装着一座温室"这件事上。','装备级识别由"雾庭舱"补足，二者共同构成项目的双层命名。'],related:['mistgarden']},
-  {id:'passenger',group:'乘客档案',title:'未公开旅客',en:'Unlisted Passenger',type:'人物',status:'机密',parent:'赛尼亚岛',summary:'雾庭舱原持有者，一位长期驻留于赛尼亚岛的研究型旅客。',body:['其活动痕迹更接近"在北方停留太久的人"，而非宏大英雄角色。','他在现实中的植物园、温室和北方旅行中积累了影像与环境记忆，并把它们整理成一个便携舱体。'],related:['mistgarden','ticket','utility']},
-  {id:'ticket',group:'物件档案',title:'旅客票据',en:'Voyage Ticket',type:'纸质接口',status:'可复制',parent:'雾庭舱',summary:'最适合被观众带走的现实入口物之一。',body:['票据承担多重作用：旅居感、航行感、现实触感、扫码入口和 ARG 延迟体验。','在系统里，它既可能是潮线的票据，也可能带有转栈署的补记与异常编号。'],related:['tideline','relay','mistgarden']},
+  {id:'passenger',group:'乘客档案',title:'未公开旅客',en:'Unlisted Passenger',type:'人物',status:'机密',parent:'赛尼亚岛',summary:'雾庭舱原持有者，一位长期驻留于赛尼亚岛的研究型旅客。',body:['其活动痕迹更接近"在北方停留太久的人"，而非宏大英雄角色。','他在现实中的植物园、温室和北方旅行中积累了影像与环境记忆，并把它们整理成一个便携舱体。','旅客身份：植物学研究者，长期驻留在赛尼亚岛温室模块进行数字植物研究。'],related:['mistgarden','ticket','utility']},
+  {id:'ticket',group:'物件档案',title:'旅客票据',en:'Voyage Ticket',type:'纸质接口',status:'可复制',parent:'雾庭舱',summary:'最适合被观众带走的现实入口物之一。',body:['票据承担多重作用：旅居感、航行感、现实触感、扫码入口和 ARG 延迟体验。','在系统里，它既可能是潮线的票据，也可能带有转栈署的补记与异常编号。','票据信息：航线从赛尼亚岛出发，目的地为白屿港，预计航行时间72小时。'],related:['tideline','relay','mistgarden']},
   {id:'utility',group:'物件档案',title:'驻留套件',en:'Stay Utility Kit',type:'生活层小物',status:'待制作',parent:'雾庭舱',summary:'包括拖鞋、牙刷、洗漱袋等旅居小物，用于强化"这是某人真实住过、停留过的系统"这一感觉。',body:['它不是装饰性的 props，而是把世界观从"只剩技术和设定"拉回"有人真的住过这里"的生活层。','建议作为现场可见小物出现，并和扫码流程中的提问、票据和气味卡形成互文。'],related:['mistgarden','passenger','scent']},
   {id:'climate',group:'物件档案',title:'参数卡',en:'Climate Card',type:'技术附属物',status:'待制作',parent:'雾庭舱',summary:'记录雾庭舱内局部湿度、温度、光照与植物记忆校准信息的参数卡。',body:['它能提供一点"系统真实感"，但不需要写得过满。','参数卡最好像真实设备随附的校准记录，而不是一张解释世界观的概念海报。'],related:['mistgarden','scent','greenhousemodule']},
   {id:'scent',group:'物件档案',title:'气味卡',en:'Scent Card',type:'感知附属物',status:'待制作',parent:'雾庭舱',summary:'把气味正式纳入体验链路，而不是附会性的装饰。',body:['建议拆成三层：旅居清洁感、温室湿度感、轻微异常冷空气感。','气味卡既可以是现场带走物，也可以在手机端被写入识别问题。'],related:['utility','climate','mistgarden']},
-  {id:'misdelivery',group:'事件档案',title:'错投事件',en:'Misdelivery Event',type:'异常事件',status:'未结案',parent:'转栈署',summary:'雾庭舱没有按预定路径返回赛尼亚岛，而是在复制或中转过程中掉入现实。',body:['这是整个项目最核心的异常事件，也是连接现实箱体、网页档案和 Vision Pro 体验的关键桥梁。','在对外语境中，它可以保持含糊；在档案查看器中，则可以逐步补上时间、地点和未确认部分。'],related:['relay','mistgarden','passenger']},
+  {id:'misdelivery',group:'事件档案',title:'错投事件',en:'Misdelivery Event',type:'异常事件',status:'未结案',parent:'转栈署',summary:'雾庭舱没有按预定路径返回赛尼亚岛，而是在复制或中转过程中掉入现实。',body:['这是整个项目最核心的异常事件，也是连接现实箱体、网页档案和 Vision Pro 体验的关键桥梁。','在对外语境中，它可以保持含糊；在档案查看器中，则可以逐步补上时间、地点和未确认部分。','事件经过：雾庭舱在潮线网络的中转过程中遭遇数字洋流风暴，导致航线偏移，最终发生具象化泄露，落入现实空间。','转栈署记录："MG-17 型便携温室舱于航线 S-042 段遭遇数据流异常，疑似发生现实侵入。当前状态：未回收，未确认。"'],related:['relay','mistgarden','passenger','tideline']},
   {id:'archive',group:'媒介入口',title:'档案查看器',en:'Archive Viewer',type:'数据库阅读器',status:'原型',parent:'网站B',summary:'承接深层设定、组织结构、物件、事件与假官网层的入口。',body:['它更像游戏 codex 和内部数据库，不像传统展示网页。','后续所有词条、认领流程、失物记录和手机端深链都应汇入这里。'],related:['relay','mistgarden']}
 ];
 
 let currentId='mistgarden';
-const groupsWrap=document.getElementById('groups');
 const detail=document.getElementById('detail');
 const related=document.getElementById('related');
 const timeline=document.getElementById('timeline');
-const search=document.getElementById('search');
-
-const groups=[...new Set(db.map(x=>x.group))];
-
-function renderGroups(filter=''){
-  groupsWrap.innerHTML='';
-  groups.forEach(group=>{
-    const items=db.filter(x=>x.group===group&&(x.title+x.en+x.summary).toLowerCase().includes(filter.toLowerCase()));
-    if(!items.length)return;
-    const div=document.createElement('div');
-    div.className='group';
-    div.innerHTML=`<h3>${group}</h3>`;
-    items.forEach(item=>{
-      const el=document.createElement('div');
-      el.className='entry'+(item.id===currentId?' active':'');
-      el.innerHTML=`<strong>${item.title}</strong><small>${item.en}</small>`;
-      el.onclick=()=>{currentId=item.id;renderAll();};
-      div.appendChild(el);
-    });
-    groupsWrap.appendChild(div);
-  });
-}
 
 function renderDetail(){
   const item=db.find(x=>x.id===currentId);
@@ -264,7 +222,6 @@ function selectEntry(id){
 }
 
 function renderAll(){
-  renderGroups(search.value);
   renderDetail();
   renderRelated();
   renderTimeline();
@@ -274,8 +231,6 @@ function scrollTimeline(direction){
   const scrollAmount=300;
   timeline.scrollBy({left:direction*scrollAmount,behavior:'smooth'});
 }
-
-search.addEventListener('input',e=>renderGroups(e.target.value));
 
 // 键盘导航
 document.addEventListener('keydown',e=>{
