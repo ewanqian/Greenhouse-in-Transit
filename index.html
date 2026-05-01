@@ -1,245 +1,65 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Greenhouse in Transit / 箱中温室</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", sans-serif;
-            background: #fff;
-            color: #111;
-            line-height: 1.65;
-        }
-        .wrap {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 40px;
-        }
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            border-bottom: 1px solid #e5e5e5;
-            position: sticky;
-            top: 0;
-            background: rgba(255, 255, 255, .95);
-            backdrop-filter: blur(10px);
-            z-index: 20;
-        }
-        .brand {
-            font-weight: 900;
-            letter-spacing: .02em;
-        }
-        .links {
-            display: flex;
-            gap: 20px;
-            font-size: 14px;
-            color: #666;
-        }
-        .links a {
-            color: #0f62fe;
-            text-decoration: none;
-        }
-        .hero {
-            position: relative;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            background: #0a0a0a;
-            overflow: hidden;
-        }
-        .hero-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.6;
-            z-index: 0;
-        }
-        .hero-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(180deg, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.6) 100%);
-            z-index: 1;
-        }
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 900px;
-            width: 100%;
-            padding: 0 40px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .eyebrow {
-            font-size: 11px;
-            letter-spacing: .2em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 32px;
-            font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
-            font-weight: 400;
-        }
-        h1 {
-            font-size: clamp(40px, 8vw, 100px);
-            line-height: 0.95;
-            margin: 0 auto 28px;
-            letter-spacing: -.02em;
-            color: #fff;
-            font-weight: 800;
-            text-align: center;
-        }
-        .subtitle {
-            font-size: 18px;
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 600px;
-            margin: 0 auto 48px;
-            line-height: 1.7;
-            text-align: center;
-        }
-        .btns {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 32px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 16px 32px;
-            border: 2px solid #fff;
-            color: #fff;
-            font-size: 14px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        .btn:hover {
-            background: #fff;
-            color: #111;
-        }
-        .btn.primary {
-            background: #fff;
-            color: #111;
-        }
-        .btn.primary:hover {
-            background: transparent;
-            color: #fff;
-        }
-        section {
-            padding: 100px 0;
-            border-bottom: 1px solid #e5e5e5;
-        }
-        h2 {
-            font-size: 28px;
-            line-height: 1.3;
-            margin: 0 0 20px;
-            letter-spacing: -.01em;
-            font-weight: 700;
-        }
-        p {
-            margin: 0 0 16px;
-            color: #555;
-            line-height: 1.8;
-        }
-        .two {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: start;
-        }
-        .footer {
-            padding: 48px 0 80px;
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-        }
-        .footer p {
-            color: #666;
-        }
-        @media (max-width: 980px) {
-            .two {
-                grid-template-columns: 1fr;
-                gap: 40px;
-            }
-            .links {
-                display: none;
-            }
-            .hero {
-                min-height: 80vh;
-            }
-            h1 {
-                font-size: clamp(36px, 12vw, 80px);
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greenhouse in Transit / 现场入口</title>
+<meta http-equiv="refresh" content="0; url=./mg17-intake.html">
+<link rel="canonical" href="./mg17-intake.html">
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  display:grid;
+  place-items:center;
+  background:
+    radial-gradient(circle at top, rgba(255,255,255,.58), transparent 26%),
+    linear-gradient(180deg, #f3e9d8 0%, #efe3cc 100%);
+  color:#1f2119;
+  font-family:"Avenir Next","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+}
+.panel{
+  width:min(640px, calc(100vw - 32px));
+  padding:28px 24px;
+  border:1px solid rgba(76,72,58,.24);
+  background:rgba(255,251,244,.84);
+  box-shadow:0 22px 48px rgba(57,50,34,.14);
+}
+.eyebrow{
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:#616b48;
+}
+h1{
+  margin:10px 0 12px;
+  font-family:"Songti SC","Noto Serif SC","Source Han Serif SC",serif;
+  font-size:34px;
+  line-height:1.12;
+}
+p{
+  margin:0;
+  color:#494739;
+  line-height:1.7;
+}
+a{
+  display:inline-block;
+  margin-top:18px;
+  color:#495136;
+  text-decoration:none;
+  border-bottom:1px solid rgba(73,81,54,.36);
+}
+</style>
 </head>
 <body>
-    <div class="nav">
-        <div class="brand">VIRTURA</div>
-        <div class="links">
-            <a href="Archive/project-home-v2.html">项目主页</a>
-            <a href="Archive/archive-viewer-v2.html">档案查看器</a>
-            <a href="README.md">文档</a>
-        </div>
-    </div>
-
-    <div class="hero">
-        <img src="assets/drop-flow-hero.png" alt="一滴水涌现的花园" class="hero-bg">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <div class="eyebrow">SPATIAL NARRATIVE / PORTABLE GREENHOUSE / 2025</div>
-            <h1>Greenhouse<br>in Transit</h1>
-            <div class="subtitle">一件来自数字洋流深处的遗失货物，在潮线网络的中转错投中浮出水面</div>
-            <div class="btns">
-                <a class="btn primary" href="Archive/project-home-v2.html">项目主页</a>
-                <a class="btn" href="Archive/archive-viewer-v2.html">档案查看器</a>
-                <a class="btn" href="README.md">查看文档</a>
-            </div>
-        </div>
-    </div>
-
-    <section>
-        <div class="wrap two">
-            <div>
-                <h2>项目简介</h2>
-                <p>《箱中温室》是一件以手提箱为现实入口的空间叙事项目。它表面像一件来自北欧数字旅居地的遗失行李，深层上却是一只被命名为"雾庭舱"的便携温室舱——原本属于一位在数字洋流中潜航的长期驻留旅客。</p>
-                <p>在潮线网络的某次潜航运输中，这件货物因中转错投而脱离原路径，从深层洋流浮出水面，最终作为一件异常证物落入现实。</p>
-                <p>观众先看到实体箱体，再从手机端进入项目主页，理解赛尼亚岛、松间、白屿会与雾庭舱之间的关系；之后通过档案查看器进一步读到错投记录、旅客线索和物件说明，最后在 Vision Pro 中短暂看到一座被压缩的温室从箱体内部展开。</p>
-            </div>
-            <div>
-                <h2>快速导航</h2>
-                <p>项目已整理为以下主要入口：</p>
-                <div class="btns" style="justify-content: flex-start;">
-                    <a class="btn" style="border-color: #111; color: #111;" href="Archive/project-home-v2.html">项目主页</a>
-                    <a class="btn" style="border-color: #111; color: #111;" href="Archive/archive-viewer-v2.html">档案查看器</a>
-                    <a class="btn" style="border-color: #111; color: #111;" href="README.md">完整文档</a>
-                    <a class="btn" style="border-color: #111; color: #111;" href="00-overview/world-overview.md">世界观总览</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <div class="wrap footer">
-        <p>© 2025 VIRTURA Digital Voyage Universe</p>
-        <p>一个空间可以被当作目的地去进入，也可以被压缩成物件去携带。</p>
-    </div>
+  <div class="panel">
+    <div class="eyebrow">Field Return Entry</div>
+    <h1>正在进入《温室在途》现场入口。</h1>
+    <p>如果页面没有自动跳转，请手动进入当前公开体验入口。</p>
+    <a href="./mg17-intake.html">进入现场入口</a>
+  </div>
+  <script>
+    window.location.replace("./mg17-intake.html");
+  </script>
 </body>
 </html>

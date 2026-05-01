@@ -1,0 +1,1634 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>温室在途 — 物证档案与访问流程</title>
+<style>
+:root{
+  --paper:#f4eedf;
+  --paper-2:#ece2cc;
+  --paper-3:#f9f4e8;
+  --ink:#202319;
+  --muted:#6d695e;
+  --line:#c9bea8;
+  --olive:#4f5639;
+  --olive-soft:#667050;
+  --olive-faint:#d8d2bf;
+  --card:#fcf8ef;
+  --screen:#151811;
+  --screen-line:#313827;
+  --screen-text:#f0ecd8;
+  --screen-muted:#9ca08e;
+  --gold:#a98d55;
+  --shadow:0 18px 44px rgba(36,33,23,.12);
+  --max:1460px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at top left, rgba(255,255,255,.55), transparent 28%),
+    radial-gradient(circle at right 18%, rgba(213,198,166,.22), transparent 20%),
+    linear-gradient(180deg, #f8f2e6 0%, #efe4d1 48%, #f7f2e6 100%);
+  font-family:"Avenir Next","PingFang SC","Hiragino Sans GB","Noto Sans SC","Microsoft YaHei",sans-serif;
+  line-height:1.65;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  opacity:.18;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(84,77,60,.04) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(84,77,60,.03) 0 1px, transparent 1px 5px);
+}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.shell{position:relative;max-width:var(--max);margin:0 auto;padding:28px 26px 80px}
+.paper{
+  position:relative;
+  border:1.5px solid rgba(82,76,61,.48);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.45), rgba(255,255,255,.2)),
+    linear-gradient(180deg, var(--paper-3), var(--paper));
+  box-shadow:var(--shadow);
+}
+.paper::before{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border:1px solid rgba(82,76,61,.18);
+  pointer-events:none;
+}
+.masthead{
+  display:grid;
+  grid-template-columns:1.2fr minmax(320px, 2fr) 1fr;
+  gap:24px;
+  padding:28px 30px 24px;
+  border-bottom:1.5px solid rgba(82,76,61,.42);
+  align-items:start;
+}
+.brand-lockup{display:flex;gap:16px;align-items:flex-start}
+.brand-lockup img{width:64px;height:64px;object-fit:contain;filter:drop-shadow(0 8px 14px rgba(43,50,31,.12))}
+.eyebrow{
+  margin:0 0 10px;
+  font-size:12px;
+  text-transform:uppercase;
+  letter-spacing:.2em;
+  color:var(--olive-soft);
+}
+.brand-title{
+  margin:0;
+  font-family:"Songti SC","Noto Serif SC","Source Han Serif SC",serif;
+  font-size:clamp(40px,4vw,70px);
+  line-height:1.02;
+  letter-spacing:.02em;
+}
+.brand-subtitle{
+  margin:10px 0 0;
+  color:var(--muted);
+  max-width:740px;
+  font-size:16px;
+}
+.head-meta{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.meta-card,
+.seal-card{
+  min-height:100%;
+  padding:14px 16px;
+  border:1px solid rgba(82,76,61,.28);
+  background:rgba(255,251,243,.72);
+}
+.meta-label{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:var(--olive-soft);
+}
+.meta-value{
+  margin-top:8px;
+  font-size:15px;
+  font-weight:600;
+}
+.seal-card{
+  display:flex;
+  gap:16px;
+  align-items:center;
+  justify-content:space-between;
+}
+.seal-copy{
+  max-width:220px;
+  color:var(--muted);
+  font-size:14px;
+}
+.seal-card img{width:88px;height:88px;object-fit:contain;opacity:.82}
+.quick-actions{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+  padding:18px 30px 0;
+}
+.quick-actions a{
+  padding:12px 16px;
+  border:1px solid rgba(82,76,61,.4);
+  background:rgba(255,252,246,.8);
+  font-size:13px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  transition:border-color .2s ease, transform .2s ease, background .2s ease;
+}
+.quick-actions a.primary{
+  background:var(--olive);
+  color:#f8f3e7;
+}
+.quick-actions a:hover{
+  border-color:var(--olive);
+  transform:translateY(-1px);
+  background:rgba(240,235,223,.96);
+}
+.quick-actions a.primary:hover{
+  background:#404730;
+}
+.board{
+  margin:24px 30px 0;
+  padding:22px 0 0;
+  border-top:1px solid rgba(82,76,61,.24);
+}
+.board-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:18px;
+  padding-bottom:18px;
+  border-bottom:1.5px solid rgba(82,76,61,.38);
+}
+.board-title{
+  margin:0;
+  font-family:"Songti SC","Noto Serif SC","Source Han Serif SC",serif;
+  font-size:34px;
+  line-height:1.1;
+}
+.board-note{
+  max-width:520px;
+  font-size:14px;
+  color:var(--muted);
+  text-align:right;
+}
+.step-rail{
+  display:grid;
+  grid-template-columns:repeat(10,minmax(0,1fr));
+  gap:10px;
+  padding:22px 0 16px;
+  border-bottom:1px dashed rgba(82,76,61,.36);
+}
+.step-chip{
+  position:relative;
+  min-height:110px;
+  padding:12px 10px 12px 14px;
+  border:1px solid rgba(82,76,61,.22);
+  background:rgba(255,252,246,.72);
+  cursor:pointer;
+  text-align:left;
+  transition:transform .18s ease, border-color .18s ease, background .18s ease, box-shadow .18s ease;
+}
+.step-chip::before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border:1px solid rgba(82,76,61,.12);
+}
+.step-chip:hover,
+.step-chip.active{
+  transform:translateY(-2px);
+  border-color:var(--olive);
+  background:rgba(244,240,227,.96);
+  box-shadow:0 8px 18px rgba(52,52,37,.08);
+}
+.step-number{
+  display:inline-grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  border-radius:999px;
+  border:1px solid var(--olive);
+  background:var(--olive);
+  color:#f7f2e5;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.06em;
+}
+.step-label{
+  margin-top:12px;
+  font-size:14px;
+  font-weight:700;
+  line-height:1.35;
+}
+.step-desc{
+  margin-top:4px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+.board-grid{
+  display:grid;
+  grid-template-columns:300px minmax(420px, 1fr) 360px;
+  gap:18px;
+  padding:22px 0 0;
+}
+.panel{
+  position:relative;
+  min-height:100%;
+  padding:18px;
+  border:1px solid rgba(82,76,61,.22);
+  background:rgba(255,251,244,.82);
+}
+.panel::before{
+  content:"";
+  position:absolute;
+  inset:8px;
+  border:1px solid rgba(82,76,61,.1);
+  pointer-events:none;
+}
+.panel-head{
+  margin-bottom:14px;
+  padding-bottom:10px;
+  border-bottom:1px solid rgba(82,76,61,.16);
+}
+.panel-kicker{
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--olive-soft);
+}
+.panel-title{
+  margin:6px 0 0;
+  font-size:24px;
+  font-family:"Songti SC","Noto Serif SC","Source Han Serif SC",serif;
+  line-height:1.15;
+}
+.summary-list,
+.fact-list,
+.source-list,
+.inventory-list,
+.timeline-list{
+  display:grid;
+  gap:10px;
+}
+.summary-item,
+.fact-item,
+.inventory-item,
+.timeline-item{
+  padding:10px 12px;
+  border:1px solid rgba(82,76,61,.15);
+  background:rgba(247,242,231,.72);
+}
+.summary-key,
+.fact-label,
+.inventory-meta,
+.timeline-date{
+  font-size:11px;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:var(--olive-soft);
+}
+.summary-value,
+.fact-value,
+.inventory-name,
+.timeline-title{
+  margin-top:4px;
+  font-size:14px;
+  font-weight:600;
+}
+.inventory-copy,
+.timeline-copy{
+  margin-top:6px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.55;
+}
+.badge-row,
+.tag-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.badge,
+.tag{
+  padding:6px 9px;
+  border:1px solid rgba(82,76,61,.22);
+  background:rgba(250,245,236,.92);
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.14em;
+  color:var(--olive);
+}
+.badge.pending{color:#8c6634;border-color:rgba(169,141,85,.4)}
+.badge.live{color:#35573d;border-color:rgba(59,98,72,.28)}
+.phone-wrap{
+  position:relative;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 238px;
+  gap:18px;
+  align-items:start;
+}
+.phone{
+  position:relative;
+  overflow:hidden;
+  border-radius:34px;
+  background:linear-gradient(180deg,#222719,#0e100b);
+  padding:14px;
+  box-shadow:0 20px 50px rgba(23,24,17,.28);
+}
+.phone::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:8px;
+  transform:translateX(-50%);
+  width:34%;
+  height:16px;
+  border-radius:999px;
+  background:rgba(244,238,223,.16);
+}
+.phone-screen{
+  min-height:720px;
+  border-radius:24px;
+  background:
+    linear-gradient(180deg, rgba(216,210,191,.06), rgba(216,210,191,.02)),
+    linear-gradient(180deg, #181b13, #10120e 44%, #171a13 100%);
+  border:1px solid rgba(185,175,146,.14);
+  color:var(--screen-text);
+  padding:20px 18px 18px;
+}
+.screen-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:11px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--screen-muted);
+}
+.screen-brand{
+  margin-top:18px;
+  font-size:12px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:#cbc7b1;
+}
+.screen-title{
+  margin:12px 0 0;
+  font-size:28px;
+  line-height:1.08;
+  font-family:"Avenir Next Condensed","Arial Narrow","PingFang SC",sans-serif;
+  letter-spacing:.04em;
+}
+.screen-copy{
+  margin:10px 0 0;
+  color:#c9c4af;
+  font-size:14px;
+  line-height:1.65;
+}
+.screen-visual{
+  margin-top:18px;
+  padding:16px;
+  border:1px solid rgba(185,175,146,.16);
+  background:rgba(236,229,204,.04);
+  min-height:260px;
+}
+.screen-grid{
+  display:grid;
+  gap:10px;
+}
+.screen-card{
+  border:1px solid rgba(185,175,146,.12);
+  background:rgba(241,236,219,.06);
+  padding:12px;
+}
+.screen-card strong{
+  display:block;
+  font-size:13px;
+  letter-spacing:.08em;
+}
+.screen-card span{
+  display:block;
+  margin-top:6px;
+  color:#b6b29d;
+  font-size:12px;
+  line-height:1.55;
+}
+.qr-box{
+  width:176px;
+  height:176px;
+  margin:0 auto 18px;
+  padding:14px;
+  border:2px solid rgba(242,236,220,.72);
+  border-radius:18px;
+  background:
+    linear-gradient(90deg, rgba(243,238,224,.9) 0 8px, transparent 8px calc(100% - 8px), rgba(243,238,224,.9) calc(100% - 8px)),
+    linear-gradient(180deg, rgba(243,238,224,.9) 0 8px, transparent 8px calc(100% - 8px), rgba(243,238,224,.9) calc(100% - 8px));
+}
+.qr-grid{
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:4px;
+  width:100%;
+  height:100%;
+}
+.qr-cell{
+  background:rgba(243,238,224,.08);
+}
+.qr-cell.fill{
+  background:#f2eedc;
+}
+.auth-plate,
+.code-plate,
+.doc-plate{
+  padding:14px;
+  border:1px solid rgba(185,175,146,.16);
+  background:rgba(241,236,219,.05);
+}
+.auth-plate{
+  margin-top:14px;
+  display:grid;
+  gap:10px;
+}
+.code-plate{
+  margin-top:18px;
+  font-size:32px;
+  line-height:1;
+  letter-spacing:.18em;
+  text-align:center;
+  color:#f1e8c4;
+  font-family:"Avenir Next Condensed","Arial Narrow",sans-serif;
+}
+.case-stats{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.stat-tile{
+  padding:10px;
+  border:1px solid rgba(185,175,146,.14);
+  background:rgba(241,236,219,.05);
+}
+.stat-tile em{
+  display:block;
+  font-style:normal;
+  font-size:11px;
+  color:var(--screen-muted);
+  text-transform:uppercase;
+  letter-spacing:.14em;
+}
+.stat-tile strong{
+  display:block;
+  margin-top:8px;
+  font-size:14px;
+  line-height:1.45;
+}
+.thumb-row{
+  display:grid;
+  gap:10px;
+}
+.thumb-card{
+  display:grid;
+  grid-template-columns:70px 1fr;
+  gap:10px;
+  align-items:center;
+  padding:10px;
+  border:1px solid rgba(185,175,146,.14);
+  background:rgba(241,236,219,.04);
+}
+.thumb-preview{
+  height:70px;
+  border:1px solid rgba(185,175,146,.16);
+  background:
+    linear-gradient(135deg, rgba(247,236,205,.14), rgba(247,236,205,.02)),
+    radial-gradient(circle at 30% 30%, rgba(240,225,179,.28), transparent 52%),
+    linear-gradient(180deg, #2e3724, #11140d);
+}
+.thumb-card strong{
+  font-size:13px;
+}
+.thumb-card span{
+  display:block;
+  margin-top:4px;
+  font-size:12px;
+  color:#bab59f;
+  line-height:1.5;
+}
+.memory-frame,
+.panorama-frame{
+  position:relative;
+  overflow:hidden;
+  border:1px solid rgba(185,175,146,.14);
+  background:#0f110d;
+}
+.memory-frame img,
+.panorama-frame img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  opacity:.86;
+  filter:saturate(.68) contrast(1.08) brightness(.88);
+}
+.memory-overlay,
+.panorama-overlay{
+  position:absolute;
+  inset:auto 12px 12px 12px;
+  padding:12px 14px;
+  background:linear-gradient(180deg, rgba(15,17,13,.2), rgba(15,17,13,.72));
+  border:1px solid rgba(223,216,190,.08);
+}
+.memory-overlay strong,
+.panorama-overlay strong{
+  display:block;
+  font-size:13px;
+  letter-spacing:.08em;
+}
+.memory-overlay span,
+.panorama-overlay span{
+  display:block;
+  margin-top:6px;
+  color:#c4c0ab;
+  font-size:12px;
+  line-height:1.5;
+}
+.db-list{
+  display:grid;
+  gap:10px;
+}
+.db-row{
+  display:grid;
+  grid-template-columns:1.2fr .8fr;
+  gap:12px;
+  padding:10px 12px;
+  border:1px solid rgba(185,175,146,.12);
+  background:rgba(241,236,219,.04);
+}
+.db-row strong{
+  font-size:13px;
+}
+.db-row span{
+  display:block;
+  font-size:12px;
+  color:#bdb8a3;
+}
+.hidden-stack{
+  display:grid;
+  gap:10px;
+}
+.locked-card{
+  padding:12px;
+  border:1px dashed rgba(185,175,146,.18);
+  background:rgba(241,236,219,.03);
+}
+.locked-card strong{
+  display:block;
+  font-size:13px;
+}
+.locked-card span{
+  display:block;
+  margin-top:6px;
+  font-size:12px;
+  color:#b9b49d;
+}
+.phone-side{
+  display:grid;
+  gap:12px;
+}
+.side-card{
+  padding:14px;
+  border:1px solid rgba(82,76,61,.16);
+  background:rgba(255,252,246,.76);
+}
+.side-card h4{
+  margin:0;
+  font-size:15px;
+}
+.side-card p{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.58;
+}
+.side-card ul{
+  margin:10px 0 0;
+  padding:0;
+  list-style:none;
+  display:grid;
+  gap:8px;
+}
+.side-card li{
+  position:relative;
+  padding-left:14px;
+  font-size:13px;
+  color:var(--ink);
+}
+.side-card li::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:.75em;
+  width:6px;
+  height:6px;
+  border-radius:999px;
+  background:var(--olive);
+}
+.story-grid,
+.setting-grid{
+  display:grid;
+  gap:16px;
+}
+.story-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  padding:18px 30px 0;
+}
+.chain-card,
+.setting-card{
+  padding:18px;
+  border:1px solid rgba(82,76,61,.2);
+  background:rgba(255,251,244,.84);
+}
+.chain-index,
+.setting-type{
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.18em;
+  color:var(--olive-soft);
+}
+.chain-title,
+.setting-title{
+  margin:10px 0 0;
+  font-size:24px;
+  font-family:"Songti SC","Noto Serif SC","Source Han Serif SC",serif;
+  line-height:1.18;
+}
+.chain-body,
+.setting-copy{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.62;
+}
+.chain-proof{
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px dashed rgba(82,76,61,.22);
+  font-size:13px;
+  color:var(--ink);
+}
+.section{
+  margin:24px 30px 0;
+  padding:22px 0 0;
+  border-top:1px solid rgba(82,76,61,.22);
+}
+.section-heading{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:end;
+  padding-bottom:18px;
+}
+.section-heading h2{
+  margin:0;
+  font-size:32px;
+  line-height:1.08;
+  font-family:"Songti SC","Noto Serif SC","Source Han Serif SC",serif;
+}
+.section-heading p{
+  margin:0;
+  max-width:560px;
+  font-size:14px;
+  color:var(--muted);
+  text-align:right;
+}
+.atlas-grid{
+  display:grid;
+  grid-template-columns:1.1fr .9fr;
+  gap:18px;
+  padding:18px 30px 0;
+}
+.source-box{
+  margin:24px 30px 0;
+  padding:16px 18px 24px;
+  border-top:1px dashed rgba(82,76,61,.28);
+  color:var(--muted);
+}
+.source-box details summary{
+  cursor:pointer;
+  font-size:14px;
+  color:var(--olive);
+  font-weight:600;
+}
+.source-box ul{
+  margin:14px 0 0;
+  padding-left:18px;
+}
+.source-box li{
+  margin:8px 0;
+}
+.source-box a{
+  color:var(--olive);
+  text-decoration:underline;
+}
+.footer{
+  display:flex;
+  justify-content:space-between;
+  gap:18px;
+  align-items:center;
+  margin:24px 30px 0;
+  padding:20px 0 28px;
+  border-top:1px solid rgba(82,76,61,.24);
+  color:var(--muted);
+  font-size:13px;
+}
+.footer-lockup{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+.footer-lockup img{
+  width:28px;
+  height:28px;
+}
+@media (max-width:1280px){
+  .masthead{grid-template-columns:1fr}
+  .board-grid,
+  .atlas-grid,
+  .phone-wrap{grid-template-columns:1fr}
+  .story-grid{grid-template-columns:1fr 1fr}
+  .section-heading,
+  .board-top{align-items:start;flex-direction:column}
+  .section-heading p,
+  .board-note{text-align:left}
+}
+@media (max-width:980px){
+  .shell{padding:16px 12px 48px}
+  .masthead,
+  .quick-actions,
+  .board,
+  .section,
+  .story-grid,
+  .atlas-grid,
+  .source-box,
+  .footer{margin-left:18px;margin-right:18px;padding-left:0;padding-right:0}
+  .step-rail{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  .story-grid,
+  .setting-grid{grid-template-columns:1fr}
+  .phone-screen{min-height:auto}
+}
+</style>
+</head>
+<body>
+  <div class="shell">
+    <div class="paper">
+      <header class="masthead">
+        <div class="brand-lockup">
+          <img src="../assets/greenhouse-botanical-mark.svg" alt="Greenhouse botanical mark">
+          <div>
+            <p class="eyebrow">Field Recovery Archive / MG-17 Access Route</p>
+            <h1 class="brand-title">《温室在途》<br>物证档案与访问流程</h1>
+            <p class="brand-subtitle">沿着箱体、票据、参数卡与转栈署记录，追踪 MG-17 如何从赛尼亚岛的数字洋流中偏航，并以现实物证形态进入档案。</p>
+          </div>
+        </div>
+        <div class="head-meta">
+          <div class="meta-card">
+            <div class="meta-label">项目对象</div>
+            <div class="meta-value">雾庭舱 / Mistgarden Case / MG-17</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">数据来源</div>
+            <div class="meta-value">转栈署记录 / 赛尼亚岛目的地档案</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">主故事线</div>
+            <div class="meta-value">赛尼亚岛长期驻留旅客的便携温室舱被潮线错投到现实</div>
+          </div>
+          <div class="meta-card">
+            <div class="meta-label">访问状态</div>
+            <div class="meta-value">物证可查 / 环境记录待复原</div>
+          </div>
+        </div>
+        <div class="seal-card">
+          <div class="seal-copy">LBA 叶片章用于标识植物性物证、转运记录与回收档案。每一次访问都从现实物件回到同一条归档路线。</div>
+          <img src="../assets/greenhouse-botanical-seal.svg" alt="Archive seal">
+        </div>
+      </header>
+
+      <div class="quick-actions">
+        <a href="../index.html">现场入口</a>
+        <a class="primary" href="greenhouse-flow-evidence-demo-v1.html">访问流程</a>
+        <a href="archive-viewer-v2.html">深层档案查看器</a>
+      </div>
+
+      <section class="board">
+        <div class="board-top">
+          <div>
+            <p class="eyebrow">Interactive White-Board Direction</p>
+            <h2 class="board-title">网页与 APP 体验流程</h2>
+          </div>
+          <p class="board-note">访问流程由现场识别、授权、证据读取、环境展开与深层归档组成。温室全景保留为待复原影像层，用于承接环境记录。</p>
+        </div>
+
+        <div class="step-rail" id="stepRail"></div>
+
+        <div class="board-grid">
+          <aside class="panel">
+            <div class="panel-head">
+              <div class="panel-kicker">Case Intake</div>
+              <h3 class="panel-title">基础案件面</h3>
+            </div>
+            <div class="summary-list" id="caseSummary"></div>
+            <div style="margin-top:14px;" class="badge-row" id="caseBadges"></div>
+            <div style="margin-top:16px;" class="source-list" id="stepSources"></div>
+          </aside>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div class="panel-kicker">Current Interaction</div>
+              <h3 class="panel-title" id="currentStepTitle">流程步骤</h3>
+            </div>
+            <div class="phone-wrap">
+              <div class="phone">
+                <div class="phone-screen">
+                  <div class="screen-top">
+                    <span id="screenTime">09:41</span>
+                    <span id="screenStatus">archive intake</span>
+                  </div>
+                  <div class="screen-brand" id="screenBrand">GREENHOUSE IN TRANSIT</div>
+                  <h4 class="screen-title" id="screenTitle">Screen Title</h4>
+                  <p class="screen-copy" id="screenCopy">Screen copy</p>
+                  <div class="screen-visual" id="screenVisual"></div>
+                </div>
+              </div>
+              <div class="phone-side">
+                <div class="side-card">
+                  <h4>这一屏到底证明什么</h4>
+                  <p id="stepProof"></p>
+                </div>
+                <div class="side-card">
+                  <h4>这一屏解锁的下一层</h4>
+                  <ul id="stepUnlocks"></ul>
+                </div>
+                <div class="side-card">
+                  <h4>保留记录</h4>
+                  <p id="stepGaps"></p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <aside class="panel">
+            <div class="panel-head">
+              <div class="panel-kicker">Evidence Chain</div>
+              <h3 class="panel-title">证据与因果</h3>
+            </div>
+            <div class="fact-list" id="evidenceFacts"></div>
+            <div style="margin-top:16px;">
+              <div class="panel-kicker">Story Cue</div>
+              <p style="margin:8px 0 0;font-size:14px;color:var(--muted);" id="storyCue"></p>
+            </div>
+            <div style="margin-top:16px;">
+              <div class="panel-kicker">Suggested Visual Tone</div>
+              <div class="tag-row" id="toneTags"></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <h2>证据链与故事线</h2>
+          <p>每一类证据都指向同一件事：现实里的箱子不是孤立道具，而是一只偏离返航路径的便携温室舱。线索逐层开放，但始终回到 MG-17 本体。</p>
+        </div>
+        <div class="story-grid" id="storyGrid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <h2>设定集 / Archive Canon Pack</h2>
+          <p>归档系统先公开最稳定的对象、地点、机构、系统和事件。植物具体种名仍处保留级，当前只开放环境参数、样本状态与记忆片段。</p>
+        </div>
+        <div class="setting-grid" id="settingGrid"></div>
+      </section>
+
+      <section class="section">
+        <div class="section-heading">
+          <h2>物件清单与全景记录</h2>
+          <p>左侧列出已经进入档案路线的现实物件；右侧保留温室全景记录，用于指向 MG-17 舱内仍未完全复原的环境层。</p>
+        </div>
+        <div class="atlas-grid">
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-kicker">Pack Inventory</div>
+              <h3 class="panel-title">现阶段可用物件</h3>
+            </div>
+            <div class="inventory-list" id="inventoryList"></div>
+          </div>
+          <div class="panel">
+            <div class="panel-head">
+              <div class="panel-kicker">Greenhouse Panorama</div>
+              <h3 class="panel-title">温室全景记录</h3>
+            </div>
+            <div class="panorama-frame">
+              <img src="../assets/garden-spline.png" alt="Greenhouse panorama placeholder">
+              <div class="panorama-overlay">
+                <strong>归档状态</strong>
+                <span>当前开放的是重建前的环境索引。完整全景记录仍在复原，归档返回路径保持有效。</span>
+              </div>
+            </div>
+            <div style="margin-top:14px;" class="fact-list">
+              <div class="fact-item">
+                <div class="fact-label">档案用途</div>
+                <div class="fact-value">证明“箱中温室”不是单件道具，而是一个被压缩保存的环境</div>
+              </div>
+              <div class="fact-item">
+                <div class="fact-label">空间记录</div>
+                <div class="fact-value">完整温室场景作为同一档案的环境证据接入，不改变访问路线</div>
+              </div>
+              <div class="fact-item">
+                <div class="fact-label">关联信息</div>
+                <div class="fact-value">区域命名、湿度参数、植物样本标签、回到 archive 的残留线索</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="source-box">
+        <details>
+          <summary>查看归档交叉引用</summary>
+          <ul>
+            <li><a href="../02-lore-database/00-index.md">世界观数据库索引</a></li>
+            <li><a href="../02-lore-database/objects/greenhouse-in-transit-case.md">雾庭舱对象档案</a></li>
+            <li><a href="../02-lore-database/objects/boarding-ticket.md">登船船票物证档案</a></li>
+            <li><a href="../02-lore-database/objects/parameter-card.md">温室环境参数卡</a></li>
+            <li><a href="../02-lore-database/objects/custom-slippers.md">定制数字拖鞋</a></li>
+            <li><a href="../02-lore-database/objects/custom-toothbrush.md">定制软毛牙刷</a></li>
+            <li><a href="../02-lore-database/locations/senja-digital-retreat.md">赛尼亚岛数字旅居地</a></li>
+            <li><a href="../02-lore-database/organizations/spatial-transfer-bureau.md">转栈署机构档案</a></li>
+            <li><a href="../02-lore-database/organizations/digital-current-navigation-division.md">潮线运输网络</a></li>
+            <li><a href="../02-lore-database/systems/digital-current.md">数字洋流系统记录</a></li>
+            <li><a href="../02-lore-database/events/suitcase-misdelivery-event.md">错投事件档案</a></li>
+            <li><a href="../assets/data/public-assets.json">MG-17 发布资产清单</a></li>
+          </ul>
+        </details>
+      </section>
+
+      <footer class="footer">
+        <div class="footer-lockup">
+          <img src="../assets/greenhouse-botanical-mark.svg" alt="Greenhouse botanical mark">
+          <div>LBA / Field Recovery Archive System · Greenhouse in Transit</div>
+        </div>
+        <div>一份被封存的记录，等待被重新打开。</div>
+      </footer>
+    </div>
+  </div>
+
+<script>
+const canon = {
+  caseSummary: [
+    ["项目题名", "箱中温室 / Greenhouse in Transit"],
+    ["物件名", "雾庭舱 / Mistgarden Case / MG-17"],
+    ["来源节点", "赛尼亚岛数字旅居地"],
+    ["回收机构", "转栈署 / Relay Bureau"],
+    ["运输网络", "潮线 / TIDELINE"],
+    ["异常原因", "复制运输协议错误导致错投"]
+  ],
+  caseBadges: ["实体存在", "扫码入口", "网页可解锁", "故事线有效", "植物细目保留级"],
+  steps: [
+    {
+      number: "01",
+      short: "扫描现场二维码",
+      desc: "从实体雾庭舱触发数字归档入口",
+      screenStatus: "scan intake",
+      screenBrand: "GREENHOUSE IN TRANSIT / FIELD ACCESS",
+      screenTitle: "扫描识别",
+      screenCopy: "先让观众相信眼前这只箱子是真的证物，而不是装置旁边附赠的网页说明卡。入口必须从实体物件触发。",
+      proof: "证明项目入口来自实体雾庭舱，而不是先从概念网页开始。",
+      unlocks: ["异常编号可见", "进入存档入口", "建立现实触发点"],
+      gaps: "正式贴纸以现场标签为准；系统只确认从实体标记进入。",
+      storyCue: "观众先遇到的是一件被错误投递到现实的便携温室舱，随后才知道它来自赛尼亚岛。",
+      tones: ["纸张边框", "黑金手机 UI", "实体优先", "低调档案气"],
+      evidence: [
+        ["物件身份", "雾庭舱是 MG-17 便携温室舱，不是普通行李箱。"],
+        ["现实入口", "对象档案明确它“是否实体存在：是”“是否可扫码：是”。"],
+        ["讲述策略", "先让人接触箱体，再给网页说明，故事更可信。"] 
+      ],
+      sources: [
+        "../02-lore-database/objects/greenhouse-in-transit-case.md"
+      ],
+      visual: "qr"
+    },
+    {
+      number: "02",
+      short: "进入存档入口页",
+      desc: "把扫码后的第一屏做成转栈署入口",
+      screenStatus: "archive portal",
+      screenBrand: "RELAY BUREAU / ARCHIVE PORTAL",
+      screenTitle: "存档入口",
+      screenCopy: "公开层先给一个“失物查询 / 回收归档”式入口，观众会自然接受自己正在查看一件等待认领的异常物。",
+      proof: "把网页身份定成转栈署对外公开的失物查询页，而不是策展说明页。",
+      unlocks: ["档案入口成立", "机构存在感建立", "可接授权流程"],
+      gaps: "编号、票据与回收状态作为同一档案记录并行显示。",
+      storyCue: "转栈署负责保管这件错投证物的失物记录，因此网页入口天然属于它。",
+      tones: ["机构感", "留白", "归档边框", "温和警示"],
+      evidence: [
+        ["机构原因", "转栈署负责错投物、失物登记、回收记录与异常警示。"],
+        ["网页归属", "本项目的网页档案入口本质上就是转栈署对外公开的失物查询页面。"],
+        ["观众感受", "比“项目介绍网页”更像一个真实系统。"] 
+      ],
+      sources: [
+        "../02-lore-database/organizations/spatial-transfer-bureau.md",
+        "../02-lore-database/objects/greenhouse-in-transit-case.md"
+      ],
+      visual: "portal"
+    },
+    {
+      number: "03",
+      short: "输入访问口令",
+      desc: "用授权动作把人带进更深一层",
+      screenStatus: "access gate",
+      screenBrand: "TEMPORARY ACCESS / AUTHORIZATION",
+      screenTitle: "访问认证",
+      screenCopy: "这一屏的作用不是安全，而是让观众感到自己已经越过公开介绍，进入需要授权才能看的事故档案层。",
+      proof: "把“我点开一个网页”变成“我进入一个受限归档系统”的心理切换。",
+      unlocks: ["受限档案感", "从品牌层切到事故层", "为案件总览立威"],
+      gaps: "访问线索来自票据或箱体标签，系统以临时授权记录进入受限档案。",
+      storyCue: "真正需要被隐藏的不是箱子，而是它为什么会从数字洋流里掉出来。",
+      tones: ["暗色金属", "打字感", "权限验证", "安静压迫"],
+      evidence: [
+        ["交互目的", "让访问动作本身变成叙事推进。"],
+        ["设定边界", "访问码来自现场票据或箱体标签，授权级别与 MG-17 绑定。"],
+        ["情绪作用", "从旅居品牌气氛过渡到事故调查气氛。"] 
+      ],
+      sources: [
+        "../02-lore-database/objects/boarding-ticket.md",
+        "../02-lore-database/organizations/spatial-transfer-bureau.md"
+      ],
+      visual: "auth"
+    },
+    {
+      number: "04",
+      short: "进入案件总览",
+      desc: "把雾庭舱、赛尼亚岛和错投状态讲清",
+      screenStatus: "case overview",
+      screenBrand: "CASE OVERVIEW / MG-17",
+      screenTitle: "案件总览",
+      screenCopy: "这里要把对象、来源节点、异常状态和运输关系一起摆出来，让观众知道：这是一个地点系统、运输系统和异常机构共同构成的事件。",
+      proof: "第一次完整交代雾庭舱来自哪里、归谁负责、为何会出现在现实。",
+      unlocks: ["案件全貌", "机构关系", "继续进入证据列表"],
+      gaps: "编号、温室模块名与旅客代号仍处保留级，主关系已可核验。",
+      storyCue: "箱体原属于赛尼亚岛长期驻留旅客，运输过程由潮线负责，失物记录由转栈署接管。",
+      tones: ["总览面板", "数据板", "低饱和卡其", "冷静陈列"],
+      evidence: [
+        ["对象事实", "雾庭舱的深层用途是植物性记忆封存容器与压缩便携空间舱。"],
+        ["来源事实", "来源是赛尼亚岛数字旅居地。"],
+        ["状态事实", "当前状态是已错误投递至现实世界。"] 
+      ],
+      sources: [
+        "../02-lore-database/objects/greenhouse-in-transit-case.md",
+        "../02-lore-database/locations/senja-digital-retreat.md"
+      ],
+      visual: "overview"
+    },
+    {
+      number: "05",
+      short: "查看物证列表",
+      desc: "从装箱物件里推断旅客与停留痕迹",
+      screenStatus: "evidence list",
+      screenBrand: "EVIDENCE LIST / PACK CONTENTS",
+      screenTitle: "证物清单",
+      screenCopy: "把票据、参数卡、拖鞋、牙刷这些东西放在一起，观众会自然理解：这个系统里真的有人停留、生活、运输过，而不是只有一个概念化道具。",
+      proof: "物件清单把“故事”从抽象设定拉回到可见、可摸、可理解的生活层证据。",
+      unlocks: ["旅客存在感", "驻留痕迹", "下一步记忆片段"],
+      gaps: "植物样本细目仍处保留级，公开层以票据、参数卡和驻留小物为主。",
+      storyCue: "拖鞋和牙刷不是装饰 props，而是让“某人真的住过这里”的证据层。",
+      tones: ["物证陈列", "小件秩序", "编号感", "真实使用痕迹"],
+      evidence: [
+        ["旅客票据", "证明持有者曾经登船进入赛尼亚岛。"],
+        ["环境参数卡", "记录封存温室的湿度、温度、气候和植物列表字段。"],
+        ["驻留小物", "定制数字拖鞋与软毛牙刷把旅居感从概念拉回生活层。"] 
+      ],
+      sources: [
+        "../02-lore-database/objects/boarding-ticket.md",
+        "../02-lore-database/objects/parameter-card.md",
+        "../02-lore-database/objects/custom-slippers.md",
+        "../02-lore-database/objects/custom-toothbrush.md"
+      ],
+      visual: "evidence"
+    },
+    {
+      number: "06",
+      short: "打开记忆片段",
+      desc: "让环境记忆开始浮出，而不是只剩文档",
+      screenStatus: "memory fragment",
+      screenBrand: "MEMORY FRAGMENT / ARCHIVE MEDIA",
+      screenTitle: "记忆片段",
+      screenCopy: "这一步不是要放完整影片，而是要让人第一次感到：箱子里保存的不是单件物品，而是某段被压缩的植物环境与停留记忆。",
+      proof: "从静态物证推进到环境记忆，证明雾庭舱本质上是便携温室舱。",
+      unlocks: ["旅客线索", "环境记忆", "进入温室全景"],
+      gaps: "片段记录以低亮预览开放，完整声画作为受限档案保留。",
+      storyCue: "旅客并不是简单地把东西装进箱子，而是把一段停留环境连同植物记忆一起封进去了。",
+      tones: ["低亮视频层", "沉浸前奏", "轻雾", "慢速推进"],
+      evidence: [
+        ["对象深层用途", "雾庭舱用于保存植物影像、湿度记忆和局部参数。"],
+        ["人物感", "未公开旅客更像在北方停留太久的研究型驻留者。"],
+        ["叙事用途", "视频片段应该推人进入环境，而不是解释全部设定。"] 
+      ],
+      sources: [
+        "../02-lore-database/objects/greenhouse-in-transit-case.md",
+        "../02-lore-database/events/suitcase-misdelivery-event.md"
+      ],
+      visual: "memory"
+    },
+    {
+      number: "07",
+      short: "进入温室全景",
+      desc: "让被压缩的环境真正展开",
+      screenStatus: "greenhouse panorama",
+      screenBrand: "GREENHOUSE PANORAMA / RECONSTRUCTED SPACE",
+      screenTitle: "温室全景",
+      screenCopy: "这一屏承担环境重建职责：它把 MG-17 舱内被压缩保存的空间记录，从物证层推进到可进入的温室层。",
+      proof: "把“箱中温室”从标题变成空间事实：箱子里确实封存着一整块环境。",
+      unlocks: ["环境展开", "植物数据库", "回到事故复原"],
+      gaps: "当前开放的是环境索引；完整全景记录仍处保留级。",
+      storyCue: "赛尼亚岛不是一张地图背景，而是这只温室舱本该返回的驻泊港与环境来源。",
+      tones: ["温室结构", "潮湿空气", "现场残留", "安静展开"],
+      evidence: [
+        ["地点关系", "赛尼亚岛是数字洋流中的驻泊港，适合长期停留。"],
+        ["环境关系", "温室全景证明这件证物保存的是环境而不是单点素材。"],
+        ["空间策略", "全景记录只服务这一层：环境展开、区域命名和归档返回。"] 
+      ],
+      sources: [
+        "../02-lore-database/locations/senja-digital-retreat.md",
+        "../02-lore-database/systems/digital-current.md"
+      ],
+      visual: "panorama"
+    },
+    {
+      number: "08",
+      short: "查看植物数据库",
+      desc: "保留有效字段，不假装种名已经录完",
+      screenStatus: "plant archive",
+      screenBrand: "PLANT DATABASE / CANON FIELDS",
+      screenTitle: "植物数据库",
+      screenCopy: "当前公开的记录以参数字段和植物性记忆为主，而不是完整物种图鉴。参数、封存时间、气候类型和样本状态构成这一层的可信数据库面。",
+      proof: "植物图鉴保持保留级，参数记录先承担可核验的证据职责。",
+      unlocks: ["样本字段", "参数视角", "回到事故时间线"],
+      gaps: "植物具体种名、样本编号和图谱仍处保留级，待归档复核后公开。",
+      storyCue: "真正被保存的是一整套植物环境条件与记忆残片，而不仅仅是一盆植物。",
+      tones: ["研究数据库", "卡片式字段", "谨慎信息量", "有效而不装满"],
+      evidence: [
+        ["参数字段", "环境参数卡已经确认记录纬度位置、气候类型、湿度、植物列表、温度范围和封存时间。"],
+        ["现实策略", "当前页面以数据库字段代替未经复核的完整植物名录。"],
+        ["开放边界", "植物样本库完成复核后，将作为同一层级的正式记录开放。"] 
+      ],
+      sources: [
+        "../02-lore-database/objects/parameter-card.md"
+      ],
+      visual: "database"
+    },
+    {
+      number: "09",
+      short: "查看事故时间线",
+      desc: "让错投事件成为真正的剧情主轴",
+      screenStatus: "incident timeline",
+      screenBrand: "MISDELIVERY EVENT / TIMELINE",
+      screenTitle: "事故时间线",
+      screenCopy: "这里要讲清：旅客先封存植物性记忆，转栈署安排复制运输，协议错误导致坐标偏移，容器脱离系统，最终掉入现实世界。",
+      proof: "把所有零散物证收束成因果链，观众终于知道为什么这只箱子会在这里。",
+      unlocks: ["完整因果", "隐藏疑点", "返回深层文档"],
+      gaps: "具体时间戳、航段与受限日志仍在复核，主因果链已可查。",
+      storyCue: "错投事件不是背景设定，而是整个项目能成立的原因本身。",
+      tones: ["档案时间线", "调查推进", "克制紧张", "明线叙事"],
+      evidence: [
+        ["已知经过", "事件档案已经有五段清晰流程。"],
+        ["系统关系", "数字洋流是底层流动媒介，潮线是运输网络，转栈署是异常回收机构。"],
+        ["叙事位置", "这一屏是把体验从“看见好看界面”推到“理解事故机制”的关键。"] 
+      ],
+      sources: [
+        "../02-lore-database/events/suitcase-misdelivery-event.md",
+        "../02-lore-database/systems/digital-current.md",
+        "../02-lore-database/organizations/digital-current-navigation-division.md",
+        "../02-lore-database/organizations/spatial-transfer-bureau.md"
+      ],
+      visual: "timeline"
+    },
+    {
+      number: "10",
+      short: "继续探索隐藏文档",
+      desc: "把未确认问题留下，形成深层追踪位",
+      screenStatus: "hidden archive",
+      screenBrand: "HIDDEN DOCUMENTS / UNRESOLVED",
+      screenTitle: "隐藏文档",
+      screenCopy: "最后不要把所有事情讲完。要把“旅客是否仍在岛上”“样本是否完整”“是否还有其他容器”“错投是否有意为之”这些问题留下，形成真正可继续生长的 archive 深层。",
+      proof: "让访问流程不是结束，而是一条仍会继续更新的深层档案路线。",
+      unlocks: ["未确认部分", "ARG 深查位", "更深 archive route"],
+      gaps: "日志、未公开片段、旅客线索和二级文书仍作为受限记录接入。",
+      storyCue: "好看的 UI 只是容器，真正让人愿意继续点下去的是未被说完的部分。",
+      tones: ["留白", "锁定卡片", "文书残片", "克制悬念"],
+      evidence: [
+        ["未确认部分", "事件词条已经明确列出四个仍未确认的问题。"],
+        ["追踪价值", "隐藏文档承接仍未公开的故事和多媒体线索。"],
+        ["体验作用", "让用户离开页面后还想继续追踪。"] 
+      ],
+      sources: [
+        "../02-lore-database/events/suitcase-misdelivery-event.md"
+      ],
+      visual: "hidden"
+    }
+  ],
+  storyChain: [
+    {
+      index: "01",
+      title: "现实误触",
+      body: "观众先看到一只在现实里存在的异常箱体，二维码把这件物证和数字入口绑定起来。",
+      proof: "雾庭舱词条明确它是实体存在、可扫码、可在网页解锁。"
+    },
+    {
+      index: "02",
+      title: "机构接管",
+      body: "网页入口不是项目说明，而是转栈署对外公开的失物查询页。系统身份一成立，后面的所有证据都有归属。",
+      proof: "转栈署负责错投物、未完成中转、失物登记、回收记录与异常警示。"
+    },
+    {
+      index: "03",
+      title: "生活痕迹取证",
+      body: "票据、参数卡、拖鞋、牙刷把“世界观”拉回到某个长期驻留旅客真实停留过的生活层。",
+      proof: "这些物件均已进入对象档案，能够支撑现场取证。"
+    },
+    {
+      index: "04",
+      title: "环境记忆展开",
+      body: "记忆片段和温室全景说明这件对象保存的是一整段植物环境与停留记忆，不只是单个物件集合。",
+      proof: "雾庭舱的深层用途已被定义为植物性记忆封存容器与压缩便携空间舱。"
+    },
+    {
+      index: "05",
+      title: "事故主线复原",
+      body: "潮线运输、数字洋流传输、协议错误与转栈署回收记录一起构成错投事件的主因果线。",
+      proof: "错投事件词条已给出清晰的五步经过。"
+    },
+    {
+      index: "06",
+      title: "隐藏文档延展",
+      body: "最后留下未确认问题，让更深的 archive、日志、旅客线索和受限影像继续往里生长。",
+      proof: "事件档案已经明确四个未确认部分，适合继续追踪。"
+    }
+  ],
+  settings: [
+    {
+      type: "Object",
+      title: "雾庭舱 / Mistgarden Case",
+      copy: "档案系统中的对象名。它是 MG-17 便携温室舱，而《箱中温室》是对外题名。深层用途是植物性记忆封存容器与压缩便携空间舱。"
+    },
+    {
+      type: "Location",
+      title: "赛尼亚岛数字旅居地",
+      copy: "表层是模拟挪威峡湾景观的虚拟北欧旅居岛屿；深层是数字洋流中的驻泊港，也是这只温室舱本该返回的原生节点。"
+    },
+    {
+      type: "Network",
+      title: "潮线 / TIDELINE",
+      copy: "负责旅客接驳、目的地通行、便携舱体运输与路线维护的航行网络。对观众最直接的表现形式是票据、运输记录与航线日志。"
+    },
+    {
+      type: "Agency",
+      title: "转栈署 / Relay Bureau",
+      copy: "处理错投物、未完成中转、失物登记、回收记录与异常警示的系统部门，也是当前网页入口最合适的对外身份。"
+    },
+    {
+      type: "System",
+      title: "数字洋流",
+      copy: "整个 VIRTURA 宇宙最基础的流动媒介。不同空间节点、目的地、温室舱和中转容器都通过它建立连接，所有生成、复制、运输、丢失都发生在其中。"
+    },
+    {
+      type: "Event",
+      title: "错投事件",
+      copy: "旅客先封存植物性记忆样本，转栈署安排复制运输，协议错误导致坐标偏移，容器脱离系统并出现在现实世界。这是整个访问流程的剧情骨架。"
+    }
+  ],
+  inventory: [
+    {
+      name: "雾庭舱 / Mistgarden Case",
+      status: "实体存在 / 可扫码",
+      badge: "live",
+      copy: "当前唯一必须真实在场的主对象，负责把所有数字体验固定在现实触发点上。"
+    },
+    {
+      name: "登船船票 / Voyage Ticket",
+      status: "待装箱 / 可扫码",
+      badge: "pending",
+      copy: "证明旅客曾经进入赛尼亚岛，也可承担访问码与入口跳转。"
+    },
+    {
+      name: "温室环境参数卡 / Climate Card",
+      status: "待装箱 / 参数有效",
+      badge: "pending",
+      copy: "当前最适合支撑植物数据库的 canonical 字段来源：湿度、温度、气候、封存时间与植物列表。"
+    },
+    {
+      name: "定制数字拖鞋",
+      status: "待制作 / 生活层证据",
+      badge: "pending",
+      copy: "强化“某人真的在这里住过”的感觉，避免所有证据都只停留在技术层。"
+    },
+    {
+      name: "定制软毛牙刷",
+      status: "待制作 / 生活层证据",
+      badge: "pending",
+      copy: "和拖鞋一起形成驻留套件，让停留感、旅居感与人物感更具体。"
+    },
+    {
+      name: "植物样本细目",
+      status: "保留级 / 待复核",
+      badge: "pending",
+      copy: "具体种名和样本编号仍待归档复核，当前只开放参数字段和记忆片段入口。"
+    }
+  ]
+};
+
+const stepRail = document.getElementById("stepRail");
+const caseSummary = document.getElementById("caseSummary");
+const caseBadges = document.getElementById("caseBadges");
+const storyGrid = document.getElementById("storyGrid");
+const settingGrid = document.getElementById("settingGrid");
+const inventoryList = document.getElementById("inventoryList");
+
+let currentStepIndex = 0;
+
+function renderCaseSummary() {
+  caseSummary.innerHTML = canon.caseSummary.map(([key, value]) => `
+    <div class="summary-item">
+      <div class="summary-key">${key}</div>
+      <div class="summary-value">${value}</div>
+    </div>
+  `).join("");
+
+  caseBadges.innerHTML = canon.caseBadges.map((item) => `<span class="badge">${item}</span>`).join("");
+}
+
+function renderStepRail() {
+  stepRail.innerHTML = canon.steps.map((step, index) => `
+    <button class="step-chip ${index === currentStepIndex ? "active" : ""}" data-index="${index}" type="button">
+      <span class="step-number">${step.number}</span>
+      <div class="step-label">${step.short}</div>
+      <div class="step-desc">${step.desc}</div>
+    </button>
+  `).join("");
+
+  stepRail.querySelectorAll(".step-chip").forEach((button) => {
+    button.addEventListener("click", () => {
+      currentStepIndex = Number(button.dataset.index);
+      renderActiveStep();
+      renderStepRail();
+    });
+  });
+}
+
+function renderSourceList(step) {
+  document.getElementById("stepSources").innerHTML = `
+    <div class="panel-kicker">Archive Cross-References</div>
+    ${step.sources.map((source) => `<div class="summary-item"><div class="summary-value"><a href="${source}">${source.replace("../", "")}</a></div></div>`).join("")}
+  `;
+}
+
+function renderEvidenceFacts(step) {
+  document.getElementById("evidenceFacts").innerHTML = step.evidence.map(([label, value]) => `
+    <div class="fact-item">
+      <div class="fact-label">${label}</div>
+      <div class="fact-value">${value}</div>
+    </div>
+  `).join("");
+}
+
+function renderUnlocks(step) {
+  document.getElementById("stepUnlocks").innerHTML = step.unlocks.map((item) => `<li>${item}</li>`).join("");
+}
+
+function renderTones(step) {
+  document.getElementById("toneTags").innerHTML = step.tones.map((tone) => `<span class="tag">${tone}</span>`).join("");
+}
+
+function qrVisual() {
+  const fills = new Set([0,1,2,4,6,7,10,12,14,16,18,19,20,22,24,25,26,28,31,33,34,35,37,39,40,42,43,45,47]);
+  return `
+    <div class="qr-box">
+      <div class="qr-grid">
+        ${Array.from({ length: 49 }, (_, index) => `<div class="qr-cell ${fills.has(index) ? "fill" : ""}"></div>`).join("")}
+      </div>
+    </div>
+    <div class="screen-card">
+      <strong>现场动作</strong>
+      <span>先扫描箱体标签或引导牌，而不是直接把用户丢进一个没有来源的网页。</span>
+    </div>
+  `;
+}
+
+function portalVisual() {
+  return `
+    <div class="auth-plate">
+      <div class="screen-card"><strong>RELAY BUREAU</strong><span>External lost-property archive intake</span></div>
+      <div class="screen-card"><strong>Archive Route</strong><span>Misdelivery registry / recovery trace / intake request</span></div>
+    </div>
+    <div class="screen-card" style="margin-top:14px;">
+      <strong>入口策略</strong>
+      <span>访问者正在查一件异常失物，而不是阅读外部说明。</span>
+    </div>
+  `;
+}
+
+function authVisual() {
+  return `
+    <div class="screen-card"><strong>现场票据 / 箱体标签</strong><span>从现实物件上拿到访问线索，完成“越界进入”动作。</span></div>
+    <div class="code-plate">MG-17</div>
+    <div class="screen-card">
+      <strong>说明</strong>
+      <span>授权来自现场票据与箱体标签，进入后只开放本次访问所需记录。</span>
+    </div>
+  `;
+}
+
+function overviewVisual() {
+  return `
+    <div class="case-stats">
+      <div class="stat-tile"><em>来源节点</em><strong>赛尼亚岛数字旅居地</strong></div>
+      <div class="stat-tile"><em>对象类型</em><strong>MG-17 便携温室舱</strong></div>
+      <div class="stat-tile"><em>运输网络</em><strong>潮线 / TIDELINE</strong></div>
+      <div class="stat-tile"><em>归档机构</em><strong>转栈署 / Relay Bureau</strong></div>
+      <div class="stat-tile"><em>当前状态</em><strong>已错误投递至现实</strong></div>
+      <div class="stat-tile"><em>主剧情核</em><strong>错投事件 / Misdelivery</strong></div>
+    </div>
+  `;
+}
+
+function evidenceVisual() {
+  return `
+    <div class="thumb-row">
+      <div class="thumb-card">
+        <div class="thumb-preview"></div>
+        <div><strong>登船船票</strong><span>证明旅客进入赛尼亚岛的入口记录。</span></div>
+      </div>
+      <div class="thumb-card">
+        <div class="thumb-preview"></div>
+        <div><strong>环境参数卡</strong><span>提供气候、湿度、温度与封存时间字段。</span></div>
+      </div>
+      <div class="thumb-card">
+        <div class="thumb-preview"></div>
+        <div><strong>驻留小物</strong><span>拖鞋与牙刷负责把旅居感落到生活层。</span></div>
+      </div>
+    </div>
+  `;
+}
+
+function memoryVisual() {
+  return `
+    <div class="memory-frame">
+      <img src="../assets/garden-spline.png" alt="Memory fragment preview">
+      <div class="memory-overlay">
+        <strong>Memory Fragment</strong>
+        <span>低亮片段用于确认环境记忆仍在舱体内持续回放。</span>
+      </div>
+    </div>
+    <div class="screen-card" style="margin-top:14px;">
+      <strong>片段用途</strong>
+      <span>物证列表在这里转入环境记录，确认箱体内保存的是一段空间。</span>
+    </div>
+  `;
+}
+
+function panoramaVisual() {
+  return `
+    <div class="panorama-frame">
+      <img src="../assets/garden-spline.png" alt="Greenhouse panorama preview">
+      <div class="panorama-overlay">
+        <strong>Panorama Record</strong>
+        <span>当前开放的是重建前索引，完整温室记录仍处受限状态。</span>
+      </div>
+    </div>
+    <div class="screen-card" style="margin-top:14px;">
+      <strong>归档任务</strong>
+      <span>此处确认“环境被展开”这一事实，完整空间影像由受限记录接入。</span>
+    </div>
+  `;
+}
+
+function databaseVisual() {
+  return `
+    <div class="db-list">
+      <div class="db-row"><div><strong>气候类型</strong><span>来自环境参数卡的 canonical 字段</span></div><div><strong>湿度 / 温度</strong><span>以真实参数字段为主</span></div></div>
+      <div class="db-row"><div><strong>封存时间</strong><span>可支撑记忆时间线</span></div><div><strong>植物列表</strong><span>具体种名仍处保留级</span></div></div>
+      <div class="db-row"><div><strong>样本状态</strong><span>当前只确认“植物性记忆样本”方向</span></div><div><strong>图谱层</strong><span>完整图鉴待复核后开放</span></div></div>
+    </div>
+  `;
+}
+
+function timelineVisual() {
+  return `
+    <div class="timeline-list">
+      <div class="timeline-item"><div class="timeline-date">01</div><div class="timeline-title">旅客封存植物性记忆样本</div><div class="timeline-copy">长期驻留旅客先把植物环境与停留记忆封进雾庭舱。</div></div>
+      <div class="timeline-item"><div class="timeline-date">02</div><div class="timeline-title">转栈署安排复制运输</div><div class="timeline-copy">原本应沿潮线回到赛尼亚岛的系统路径开始运作。</div></div>
+      <div class="timeline-item"><div class="timeline-date">03</div><div class="timeline-title">复制协议发生错误</div><div class="timeline-copy">容器坐标偏移，脱离原定运输路径。</div></div>
+      <div class="timeline-item"><div class="timeline-date">04</div><div class="timeline-title">容器掉入现实世界</div><div class="timeline-copy">异常物以实体箱体形式出现在展览现场。</div></div>
+      <div class="timeline-item"><div class="timeline-date">05</div><div class="timeline-title">转栈署记录异常等待回收</div><div class="timeline-copy">网页与 archive 由此成立。</div></div>
+    </div>
+  `;
+}
+
+function hiddenVisual() {
+  return `
+    <div class="doc-plate"><strong>UNRESOLVED</strong><span style="display:block;margin-top:8px;color:#c4bea7;font-size:13px;line-height:1.58;">旅客是否仍在赛尼亚岛停留？样本是否完整？是否还有其他容器发生类似错误？错投是否有意为之？</span></div>
+    <div class="hidden-stack" style="margin-top:14px;">
+      <div class="locked-card"><strong>未公开旅客记录</strong><span>人物片段、停留影像、音频与研究日志仍处受限状态。</span></div>
+      <div class="locked-card"><strong>二级事故文书</strong><span>复核报告、回收单、签收单和失败记录仍需授权访问。</span></div>
+      <div class="locked-card"><strong>隐藏返回线</strong><span>从深层文档返回归档页时，已经解锁的残留继续保留。</span></div>
+    </div>
+  `;
+}
+
+function renderScreenVisual(step) {
+  const visuals = {
+    qr: qrVisual,
+    portal: portalVisual,
+    auth: authVisual,
+    overview: overviewVisual,
+    evidence: evidenceVisual,
+    memory: memoryVisual,
+    panorama: panoramaVisual,
+    database: databaseVisual,
+    timeline: timelineVisual,
+    hidden: hiddenVisual
+  };
+  return visuals[step.visual] ? visuals[step.visual]() : "";
+}
+
+function renderActiveStep() {
+  const step = canon.steps[currentStepIndex];
+  document.getElementById("currentStepTitle").textContent = `${step.number} · ${step.short}`;
+  document.getElementById("screenStatus").textContent = step.screenStatus;
+  document.getElementById("screenBrand").textContent = step.screenBrand;
+  document.getElementById("screenTitle").textContent = step.screenTitle;
+  document.getElementById("screenCopy").textContent = step.screenCopy;
+  document.getElementById("screenVisual").innerHTML = renderScreenVisual(step);
+  document.getElementById("stepProof").textContent = step.proof;
+  document.getElementById("stepGaps").textContent = step.gaps;
+  document.getElementById("storyCue").textContent = step.storyCue;
+  renderUnlocks(step);
+  renderEvidenceFacts(step);
+  renderSourceList(step);
+  renderTones(step);
+}
+
+function renderStoryGrid() {
+  storyGrid.innerHTML = canon.storyChain.map((item) => `
+    <article class="chain-card">
+      <div class="chain-index">${item.index}</div>
+      <h3 class="chain-title">${item.title}</h3>
+      <p class="chain-body">${item.body}</p>
+      <div class="chain-proof">${item.proof}</div>
+    </article>
+  `).join("");
+}
+
+function renderSettings() {
+  settingGrid.innerHTML = canon.settings.map((item) => `
+    <article class="setting-card">
+      <div class="setting-type">${item.type}</div>
+      <h3 class="setting-title">${item.title}</h3>
+      <p class="setting-copy">${item.copy}</p>
+    </article>
+  `).join("");
+}
+
+function renderInventory() {
+  inventoryList.innerHTML = canon.inventory.map((item) => `
+    <article class="inventory-item">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:start;">
+        <div class="inventory-name">${item.name}</div>
+        <span class="badge ${item.badge}">${item.status}</span>
+      </div>
+      <div class="inventory-copy">${item.copy}</div>
+    </article>
+  `).join("");
+}
+
+renderCaseSummary();
+renderStepRail();
+renderActiveStep();
+renderStoryGrid();
+renderSettings();
+renderInventory();
+</script>
+</body>
+</html>

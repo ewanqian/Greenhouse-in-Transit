@@ -1,0 +1,28 @@
+# MG-17 minimal git push set for the client-facing Pages release.
+# Keep this list as small as possible.
+
+.github/workflows/deploy-pages.yml
+
+index.html
+mg17-intake.html
+
+Archive/archive-viewer-v2.html
+Archive/project-home-v2.html
+Archive/greenhouse-flow-evidence-demo-v1.html
+Archive/index.html
+
+assets/greenhouse-botanical-mark.svg
+assets/mg17-evidence-board.png
+assets/models/glb/mistgarden-case.glb
+assets/models/usdz/mistgarden-case.usdz
+assets/video/mistgarden-opening.mov
+
+scripts/build_public_docs_bundle.sh
+scripts/check_mg17_pages_release_ready.sh
+scripts/check_mg17_pages_staged_set.sh
+scripts/commit_mg17_pages_release.sh
+scripts/stage_mg17_pages_release.sh
+
+04-production/MG-17/09-public-boundary/audit_mg17_public_surface.py
+04-production/MG-17/09-public-boundary/mg17_public_bundle_manifest_v1.json
+04-production/MG-17/09-public-boundary/mg17_public_release_git_paths_v1.txt

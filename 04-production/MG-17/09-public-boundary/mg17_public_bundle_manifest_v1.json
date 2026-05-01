@@ -1,0 +1,42 @@
+{
+  "version": "v1",
+  "bundle_name": "MG-17 public docs bundle",
+  "entries": [
+    {
+      "source": "mg17-intake.html",
+      "target": "index.html"
+    },
+    {
+      "source": "mg17-intake.html",
+      "target": "mg17-intake.html"
+    },
+    {
+      "source": "Archive/archive-viewer-v2.html",
+      "target": "Archive/archive-viewer-v2.html"
+    },
+    {
+      "source": "assets/greenhouse-botanical-mark.svg",
+      "target": "assets/greenhouse-botanical-mark.svg"
+    },
+    {
+      "source": "assets/mg17-evidence-board.png",
+      "target": "assets/mg17-evidence-board.png"
+    },
+    {
+      "source": "assets/video/mistgarden-opening.mov",
+      "target": "assets/video/mistgarden-opening.mov"
+    },
+    {
+      "source": "assets/models/usdz/mistgarden-case.usdz",
+      "target": "assets/models/usdz/mistgarden-case.usdz"
+    },
+    {
+      "source": "assets/models/glb/mistgarden-case.glb",
+      "target": "assets/models/glb/mistgarden-case.glb"
+    },
+    {
+      "source": null,
+      "target": ".nojekyll"
+    }
+  ]
+}
