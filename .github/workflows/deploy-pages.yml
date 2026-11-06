@@ -6,6 +6,9 @@ on:
       - main
     paths:
       - "mg17-intake.html"
+      - "xr/ground-zero.html"
+      - "04-production/MG-17/09-public-boundary/mg17_public_bundle_manifest_v1.json"
+      - "04-production/MG-17/09-public-boundary/audit_mg17_public_surface.py"
       - "Archive/archive-viewer-v2.html"
       - "assets/greenhouse-botanical-mark.svg"
       - "assets/mg17-evidence-board.png"

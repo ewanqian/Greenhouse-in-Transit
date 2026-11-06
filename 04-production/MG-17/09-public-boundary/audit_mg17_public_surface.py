@@ -53,8 +53,10 @@ def main() -> int:
         ROOT / "Archive" / "project-home-v2.html",
         ROOT / "Archive" / "greenhouse-flow-evidence-demo-v1.html",
         ROOT / "Archive" / "index.html",
+        ROOT / "xr" / "ground-zero.html",
         docs_dir / "index.html",
         docs_dir / "mg17-intake.html",
+        docs_dir / "xr" / "ground-zero.html",
         docs_dir / "Archive" / "archive-viewer-v2.html",
     ]
 

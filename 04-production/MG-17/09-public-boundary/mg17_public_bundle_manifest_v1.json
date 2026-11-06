@@ -35,6 +35,10 @@
       "target": "assets/models/glb/mistgarden-case.glb"
     },
     {
+      "source": "xr/ground-zero.html",
+      "target": "xr/ground-zero.html"
+    },
+    {
       "source": null,
       "target": ".nojekyll"
     }
