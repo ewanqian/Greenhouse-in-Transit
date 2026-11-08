@@ -1,0 +1,656 @@
+{
+  "title": "Greenhouse in Transit / Branch Atlas",
+  "version": "0.1",
+  "source": "ewanqian/Greenhouse-in-Transit",
+  "accuracy": "Existing project lore plus newly written exploratory route variants; never claim as canonical recovered files",
+  "routes": [
+    {
+      "id": "misdelivery",
+      "number": 1,
+      "title": "01 / 误投记录",
+      "system": "RECORD / 异常投递",
+      "intro": "从一份没有收件人的记录开始。",
+      "nodes": [
+        {
+          "id": "misdelivery-1",
+          "number": 1,
+          "title": "未认领编号",
+          "description": "MG-17 与现场箱体一致，但收件人栏保持空白。",
+          "verb": "识别"
+        },
+        {
+          "id": "misdelivery-2",
+          "number": 2,
+          "title": "投递地点",
+          "description": "到达坐标没有对应的现实目的地。",
+          "verb": "比对"
+        },
+        {
+          "id": "misdelivery-3",
+          "number": 3,
+          "title": "时钟偏差",
+          "description": "时间戳比进入展厅的时间提前了一次循环。",
+          "verb": "追踪"
+        },
+        {
+          "id": "misdelivery-4",
+          "number": 4,
+          "title": "箱体封条",
+          "description": "解除假想封条，观察首次边界偏移。",
+          "verb": "解封"
+        },
+        {
+          "id": "misdelivery-5",
+          "number": 5,
+          "title": "异常封存",
+          "description": "暂时停止展开，留意仍在变化的内层空间。",
+          "verb": "悬置"
+        },
+        {
+          "id": "misdelivery-6",
+          "number": 6,
+          "title": "重新唤醒",
+          "description": "复制错误被系统短暂识别为正常入境。",
+          "verb": "激活"
+        },
+        {
+          "id": "misdelivery-7",
+          "number": 7,
+          "title": "旅客备注",
+          "description": "文字提到：植物不知道自己正在转运。",
+          "verb": "回忆"
+        },
+        {
+          "id": "misdelivery-8",
+          "number": 8,
+          "title": "错误路线",
+          "description": "潮线尝试重新连接不存在的码头。",
+          "verb": "转运"
+        },
+        {
+          "id": "misdelivery-9",
+          "number": 9,
+          "title": "未完成归档",
+          "description": "不修正错投，让异常留在现实。",
+          "verb": "留存"
+        }
+      ]
+    },
+    {
+      "id": "case",
+      "number": 2,
+      "title": "02 / 箱体解剖",
+      "system": "OBJECT / 便携容器",
+      "intro": "箱子不是储物空间，而是空间边界的接口。",
+      "nodes": [
+        {
+          "id": "case-1",
+          "number": 1,
+          "title": "箱体把手",
+          "description": "确认可携带的现实物件与内部空间之间的联系。",
+          "verb": "识别"
+        },
+        {
+          "id": "case-2",
+          "number": 2,
+          "title": "结构夹层",
+          "description": "外层金属与内部温室拥有不同尺度。",
+          "verb": "比对"
+        },
+        {
+          "id": "case-3",
+          "number": 3,
+          "title": "双层锁扣",
+          "description": "两层锁定分别约束实体箱盖和生态边界。",
+          "verb": "追踪"
+        },
+        {
+          "id": "case-4",
+          "number": 4,
+          "title": "箱盖转轴",
+          "description": "抬起箱盖后，内部坐标不再从属于外壳。",
+          "verb": "解封"
+        },
+        {
+          "id": "case-5",
+          "number": 5,
+          "title": "行李状态",
+          "description": "闭合箱盖，内部生态仍缓慢运行。",
+          "verb": "悬置"
+        },
+        {
+          "id": "case-6",
+          "number": 6,
+          "title": "便携球壳",
+          "description": "线框球壳从箱体中心伸出，显出第二重边界。",
+          "verb": "激活"
+        },
+        {
+          "id": "case-7",
+          "number": 7,
+          "title": "旧划痕",
+          "description": "一段看似来自未来访客的观察轨迹。",
+          "verb": "回忆"
+        },
+        {
+          "id": "case-8",
+          "number": 8,
+          "title": "体积变换",
+          "description": "一米左右的容器容纳不符合外形比例的花园。",
+          "verb": "转运"
+        },
+        {
+          "id": "case-9",
+          "number": 9,
+          "title": "留下外壳",
+          "description": "空间离开后，箱子仍是一处可再次开启的入口。",
+          "verb": "留存"
+        }
+      ]
+    },
+    {
+      "id": "climate",
+      "number": 3,
+      "title": "03 / 微气候协议",
+      "system": "CLIMATE / 环境参数",
+      "intro": "温室被运输时，哪些环境条件还能够保存？",
+      "nodes": [
+        {
+          "id": "climate-1",
+          "number": 1,
+          "title": "参数卡",
+          "description": "温湿度与封存时长字段存在，数值尚未核验。",
+          "verb": "识别"
+        },
+        {
+          "id": "climate-2",
+          "number": 2,
+          "title": "感应空缺",
+          "description": "没有真实传感器读数时显示 UNKNOWN。",
+          "verb": "比对"
+        },
+        {
+          "id": "climate-3",
+          "number": 3,
+          "title": "湿度切片",
+          "description": "水汽被抽象为分层等值线。",
+          "verb": "追踪"
+        },
+        {
+          "id": "climate-4",
+          "number": 4,
+          "title": "隔离薄膜",
+          "description": "打开边界，让内外气候相互交换。",
+          "verb": "解封"
+        },
+        {
+          "id": "climate-5",
+          "number": 5,
+          "title": "低温休眠",
+          "description": "降低生长动画速度，进入休眠状态。",
+          "verb": "悬置"
+        },
+        {
+          "id": "climate-6",
+          "number": 6,
+          "title": "环境复苏",
+          "description": "温室结构恢复活动，生长线重新定位。",
+          "verb": "激活"
+        },
+        {
+          "id": "climate-7",
+          "number": 7,
+          "title": "雨的记忆",
+          "description": "记住一次降雨，而不是冒称实时天气。",
+          "verb": "回忆"
+        },
+        {
+          "id": "climate-8",
+          "number": 8,
+          "title": "气候迁移",
+          "description": "数字旅居地中的气候进入展厅模拟空间。",
+          "verb": "转运"
+        },
+        {
+          "id": "climate-9",
+          "number": 9,
+          "title": "保存偏差",
+          "description": "留下无法量化却仍然可以感知的环境片段。",
+          "verb": "留存"
+        }
+      ]
+    },
+    {
+      "id": "botany",
+      "number": 4,
+      "title": "04 / 植物记忆",
+      "system": "BOTANY / 样本显影",
+      "intro": "从植物残留展开一座曾经存在的花园。",
+      "nodes": [
+        {
+          "id": "botany-1",
+          "number": 1,
+          "title": "发芽土豆",
+          "description": "最普通的植物成为最脆弱的随身行李。",
+          "verb": "识别"
+        },
+        {
+          "id": "botany-2",
+          "number": 2,
+          "title": "叶片拓印",
+          "description": "植物轮廓以几何线框而非贴图显现。",
+          "verb": "比对"
+        },
+        {
+          "id": "botany-3",
+          "number": 3,
+          "title": "根系路径",
+          "description": "根沿箱体坐标寻找新的水源。",
+          "verb": "追踪"
+        },
+        {
+          "id": "botany-4",
+          "number": 4,
+          "title": "样本袋开启",
+          "description": "植物从证物转变为空间中可观察的对象。",
+          "verb": "解封"
+        },
+        {
+          "id": "botany-5",
+          "number": 5,
+          "title": "休眠样本",
+          "description": "关闭生长反馈，观察静止的生命状态。",
+          "verb": "悬置"
+        },
+        {
+          "id": "botany-6",
+          "number": 6,
+          "title": "多肉片段",
+          "description": "另一种植物提示更缓慢的生活时间。",
+          "verb": "激活"
+        },
+        {
+          "id": "botany-7",
+          "number": 7,
+          "title": "薄荷气味",
+          "description": "气味无法在网页重现，仅保留文字和波纹。",
+          "verb": "回忆"
+        },
+        {
+          "id": "botany-8",
+          "number": 8,
+          "title": "植物迁移",
+          "description": "样本的点状残影越过外壳。",
+          "verb": "转运"
+        },
+        {
+          "id": "botany-9",
+          "number": 9,
+          "title": "种子留存",
+          "description": "离场时留下记忆记录，而非实物标本。",
+          "verb": "留存"
+        }
+      ]
+    },
+    {
+      "id": "traveler",
+      "number": 5,
+      "title": "05 / 旅客遗物",
+      "system": "TRAVELER / 日常证物",
+      "intro": "日常生活比恢宏叙事更接近真实的栖居。",
+      "nodes": [
+        {
+          "id": "traveler-1",
+          "number": 1,
+          "title": "登船票据",
+          "description": "票据与旅居路线对应，不虚构真实旅客身份。",
+          "verb": "识别"
+        },
+        {
+          "id": "traveler-2",
+          "number": 2,
+          "title": "定制拖鞋",
+          "description": "日常用品为数字目的地提供物质性。",
+          "verb": "比对"
+        },
+        {
+          "id": "traveler-3",
+          "number": 3,
+          "title": "软毛牙刷",
+          "description": "每天重复的动作使迁移故事具体起来。",
+          "verb": "追踪"
+        },
+        {
+          "id": "traveler-4",
+          "number": 4,
+          "title": "错置行李",
+          "description": "小物件触发空间的归属争议。",
+          "verb": "解封"
+        },
+        {
+          "id": "traveler-5",
+          "number": 5,
+          "title": "匿名所有者",
+          "description": "保留旅客身份档案中的缺口。",
+          "verb": "悬置"
+        },
+        {
+          "id": "traveler-6",
+          "number": 6,
+          "title": "随身清单",
+          "description": "三个日常物件排列成一组空间证词。",
+          "verb": "激活"
+        },
+        {
+          "id": "traveler-7",
+          "number": 7,
+          "title": "停留记录",
+          "description": "已离开与尚未到达的记录产生矛盾。",
+          "verb": "回忆"
+        },
+        {
+          "id": "traveler-8",
+          "number": 8,
+          "title": "托运申请",
+          "description": "箱子究竟是货物，还是可运输的居住空间？",
+          "verb": "转运"
+        },
+        {
+          "id": "traveler-9",
+          "number": 9,
+          "title": "空白署名",
+          "description": "所有权问题交给访客，不自动生成失主。",
+          "verb": "留存"
+        }
+      ]
+    },
+    {
+      "id": "navigation",
+      "number": 6,
+      "title": "06 / 潮线航路",
+      "system": "TRANSIT / 路由网络",
+      "intro": "追踪箱子如何穿过正常的空间边界。",
+      "nodes": [
+        {
+          "id": "navigation-1",
+          "number": 1,
+          "title": "潮线入口",
+          "description": "一条数字洋流轨道横穿箱内视野。",
+          "verb": "识别"
+        },
+        {
+          "id": "navigation-2",
+          "number": 2,
+          "title": "中转节点",
+          "description": "原本独立的航线在错误节点交汇。",
+          "verb": "比对"
+        },
+        {
+          "id": "navigation-3",
+          "number": 3,
+          "title": "赛尼亚地图",
+          "description": "真实档案在另一页；此处仅绘出抽象路线。",
+          "verb": "追踪"
+        },
+        {
+          "id": "navigation-4",
+          "number": 4,
+          "title": "穿越航道",
+          "description": "箱体被重新接入一条不属于它的线路。",
+          "verb": "解封"
+        },
+        {
+          "id": "navigation-5",
+          "number": 5,
+          "title": "航路暂停",
+          "description": "固定轨迹，辨认偏差发生的位置。",
+          "verb": "悬置"
+        },
+        {
+          "id": "navigation-6",
+          "number": 6,
+          "title": "航路重连",
+          "description": "两个断开的节点重新接合。",
+          "verb": "激活"
+        },
+        {
+          "id": "navigation-7",
+          "number": 7,
+          "title": "无效目的地",
+          "description": "导航请求始终未返回稳定终点。",
+          "verb": "回忆"
+        },
+        {
+          "id": "navigation-8",
+          "number": 8,
+          "title": "转栈署回收",
+          "description": "尝试送回原来的数字旅居网络。",
+          "verb": "转运"
+        },
+        {
+          "id": "navigation-9",
+          "number": 9,
+          "title": "保留偏航",
+          "description": "让错误路线成为可观察的事件本身。",
+          "verb": "留存"
+        }
+      ]
+    },
+    {
+      "id": "memory",
+      "number": 7,
+      "title": "07 / 花园残影",
+      "system": "MEMORY / 外部化空间",
+      "intro": "记忆可以保存，但不会原样返回。",
+      "nodes": [
+        {
+          "id": "memory-1",
+          "number": 1,
+          "title": "第一次扫描",
+          "description": "不完整的植物点云出现在箱底。",
+          "verb": "识别"
+        },
+        {
+          "id": "memory-2",
+          "number": 2,
+          "title": "照片与空间",
+          "description": "图像记录的花园和可进入体积并不一致。",
+          "verb": "比对"
+        },
+        {
+          "id": "memory-3",
+          "number": 3,
+          "title": "点云缺口",
+          "description": "缺失的部分比完整重建更有说服力。",
+          "verb": "追踪"
+        },
+        {
+          "id": "memory-4",
+          "number": 4,
+          "title": "显影阈值",
+          "description": "球壳临时开放供记忆穿过的缝隙。",
+          "verb": "解封"
+        },
+        {
+          "id": "memory-5",
+          "number": 5,
+          "title": "残影叠加",
+          "description": "本体与重影相互错位，形成不确定的场景。",
+          "verb": "悬置"
+        },
+        {
+          "id": "memory-6",
+          "number": 6,
+          "title": "光的重建",
+          "description": "稀疏线框重新建立空间深度。",
+          "verb": "激活"
+        },
+        {
+          "id": "memory-7",
+          "number": 7,
+          "title": "园艺动作",
+          "description": "折下一片虚拟叶片，不影响原始资料。",
+          "verb": "回忆"
+        },
+        {
+          "id": "memory-8",
+          "number": 8,
+          "title": "记忆漂移",
+          "description": "保存的环境渐渐成为一处新空间。",
+          "verb": "转运"
+        },
+        {
+          "id": "memory-9",
+          "number": 9,
+          "title": "未修复片段",
+          "description": "不完整的记忆仍值得被保存。",
+          "verb": "留存"
+        }
+      ]
+    },
+    {
+      "id": "recovery",
+      "number": 8,
+      "title": "08 / 异常回收",
+      "system": "RECOVERY / 边界管理",
+      "intro": "空间回收究竟意味着恢复，还是再次遗失？",
+      "nodes": [
+        {
+          "id": "recovery-1",
+          "number": 1,
+          "title": "登记回执",
+          "description": "异常事件得到确认，但回收尚未获准。",
+          "verb": "识别"
+        },
+        {
+          "id": "recovery-2",
+          "number": 2,
+          "title": "物证核对",
+          "description": "部分证物指向同一个缺失的时间段。",
+          "verb": "比对"
+        },
+        {
+          "id": "recovery-3",
+          "number": 3,
+          "title": "回收条件",
+          "description": "空间状态不能简化为找到或未找到。",
+          "verb": "追踪"
+        },
+        {
+          "id": "recovery-4",
+          "number": 4,
+          "title": "边界收缩",
+          "description": "收回温室外壳，部分残影仍然漂浮。",
+          "verb": "解封"
+        },
+        {
+          "id": "recovery-5",
+          "number": 5,
+          "title": "人工中止",
+          "description": "停止展示动画，不删除任何调查记录。",
+          "verb": "悬置"
+        },
+        {
+          "id": "recovery-6",
+          "number": 6,
+          "title": "回收指令",
+          "description": "要求重新封装 MG-17 温室舱。",
+          "verb": "激活"
+        },
+        {
+          "id": "recovery-7",
+          "number": 7,
+          "title": "错误报告",
+          "description": "异常被登记成另一个编号。",
+          "verb": "回忆"
+        },
+        {
+          "id": "recovery-8",
+          "number": 8,
+          "title": "再次转运",
+          "description": "回收行为引入新的路线偏差。",
+          "verb": "转运"
+        },
+        {
+          "id": "recovery-9",
+          "number": 9,
+          "title": "拒绝抹除",
+          "description": "保留无法完全回收的生活痕迹。",
+          "verb": "留存"
+        }
+      ]
+    },
+    {
+      "id": "habitation",
+      "number": 9,
+      "title": "09 / 重新栖居",
+      "system": "HABITATION / 世界入口",
+      "intro": "当空间可以被携带，它如何成为新的家？",
+      "nodes": [
+        {
+          "id": "habitation-1",
+          "number": 1,
+          "title": "新的驻留",
+          "description": "访客可以成为一个短暂的临时住客。",
+          "verb": "识别"
+        },
+        {
+          "id": "habitation-2",
+          "number": 2,
+          "title": "一处露台",
+          "description": "线框地面呈现可以停留的生活尺度。",
+          "verb": "比对"
+        },
+        {
+          "id": "habitation-3",
+          "number": 3,
+          "title": "松间邀请",
+          "description": "外层旅居品牌将异常重新描述为目的地。",
+          "verb": "追踪"
+        },
+        {
+          "id": "habitation-4",
+          "number": 4,
+          "title": "打开花园",
+          "description": "内外边界撤离，箱子成为可进入的空间。",
+          "verb": "解封"
+        },
+        {
+          "id": "habitation-5",
+          "number": 5,
+          "title": "一个人的停留",
+          "description": "没有强烈效果时，空间依然有意义。",
+          "verb": "悬置"
+        },
+        {
+          "id": "habitation-6",
+          "number": 6,
+          "title": "生长日记",
+          "description": "将前面的选择压缩成一段植物状态记录。",
+          "verb": "激活"
+        },
+        {
+          "id": "habitation-7",
+          "number": 7,
+          "title": "暂住的想象",
+          "description": "设想自己在温室内度过的第一分钟。",
+          "verb": "回忆"
+        },
+        {
+          "id": "habitation-8",
+          "number": 8,
+          "title": "归还与留下",
+          "description": "决定让箱体再次出发，还是留在现实。",
+          "verb": "转运"
+        },
+        {
+          "id": "habitation-9",
+          "number": 9,
+          "title": "回到入口",
+          "description": "关闭临时空间，但不抹除已经发生的接触。",
+          "verb": "留存"
+        }
+      ]
+    }
+  ]
+}
