@@ -1,0 +1,30 @@
+name: MG17 Branch Atlas source checks
+on:
+  pull_request:
+    paths:
+      - 'xr/branch-atlas/**'
+      - '.github/workflows/branch-atlas-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'xr/branch-atlas/**'
+      - '.github/workflows/branch-atlas-ci.yml'
+jobs:
+  atlas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Parse independent browser modules
+        run: |
+          node --check xr/branch-atlas/engine.mjs
+          node --check xr/branch-atlas/wireframe.mjs
+          node --check xr/branch-atlas/app.mjs
+      - name: Test 9x9 story mechanics
+        run: node --test xr/branch-atlas/engine.test.mjs
+      - name: Check manifest and entrypoint
+        run: |
+          node -e 'const fs=require("fs");const r="xr/branch-atlas/";const html=fs.readFileSync(r+"index.html","utf8");const story=JSON.parse(fs.readFileSync(r+"paths.json","utf8"));if(story.routes.length!==9||story.routes.some(x=>x.nodes.length!==9))process.exit(2);for(const f of ["app.mjs","wireframe.mjs","engine.mjs","paths.json"])if(!html.includes(f)&&!fs.existsSync(r+f))process.exit(3);if(html.includes("https://cdn."))process.exit(4);console.log("9x9, files present, no external CDN");'
