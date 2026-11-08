@@ -6,6 +6,7 @@ Date: 2026-11-06. Status: source-built logic and platform-validation prototype, 
 
 - xr/ground-zero.html: desktop WebGL with feature-detected immersive VR; immersive AR button only when supported by actual browser.
 - xr/ground-zero.html?operator=1: operator mode.
+- xr/branch-atlas/index.html: independent nine-route × nine-node interactive wireframe narrative prototype. **Not a WebXR headset renderer**; see branch-atlas/README.md.
 - mg17-intake.html: original on-site lost-item entry.
 - Archive/archive-viewer-v2.html: deep lore archive.
 
