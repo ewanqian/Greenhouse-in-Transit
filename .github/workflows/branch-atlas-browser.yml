@@ -1,0 +1,41 @@
+name: MG17 Branch Atlas browser and mobile smoke
+on:
+  pull_request:
+    paths:
+      - 'xr/branch-atlas/**'
+      - '.github/workflows/branch-atlas-browser.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'xr/branch-atlas/**'
+      - '.github/workflows/branch-atlas-browser.yml'
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated browser QA dependency
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Launch local web server
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/mg17-server.log 2>&1 &
+          sleep 2
+          curl -f http://127.0.0.1:8765/xr/branch-atlas/paths.json >/dev/null
+      - name: Run real browser desktop and mobile interaction checks
+        run: node xr/branch-atlas/browser-smoke.cjs
+      - name: Keep visual artifacts for human review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mg17-branch-atlas-browser-captures
+          path: |
+            branch-atlas-desktop.png
+            branch-atlas-mobile.png
+          if-no-files-found: ignore
+          retention-days: 14
