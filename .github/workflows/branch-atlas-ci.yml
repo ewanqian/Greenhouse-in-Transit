@@ -25,6 +25,14 @@ jobs:
           node --check xr/branch-atlas/app.mjs
       - name: Test 9x9 story mechanics
         run: node --test xr/branch-atlas/engine.test.mjs
+      - name: Verify publish bundle whitelist and public audit
+        run: |
+          bash scripts/build_public_docs_bundle.sh
+          test -s docs/xr/branch-atlas/index.html
+          test -s docs/xr/branch-atlas/app.mjs
+          test -s docs/xr/branch-atlas/wireframe.mjs
+          test -s docs/xr/branch-atlas/paths.json
+          test -s docs/xr/branch-atlas/engine.mjs
       - name: Check manifest and entrypoint
         run: |
           node -e 'const fs=require("fs");const r="xr/branch-atlas/";const html=fs.readFileSync(r+"index.html","utf8");const story=JSON.parse(fs.readFileSync(r+"paths.json","utf8"));if(story.routes.length!==9||story.routes.some(x=>x.nodes.length!==9))process.exit(2);for(const f of ["app.mjs","wireframe.mjs","engine.mjs","paths.json"])if(!html.includes(f)&&!fs.existsSync(r+f))process.exit(3);if(html.includes("https://cdn."))process.exit(4);console.log("9x9, files present, no external CDN");'
