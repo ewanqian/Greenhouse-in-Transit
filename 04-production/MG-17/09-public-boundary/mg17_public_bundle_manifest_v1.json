@@ -39,6 +39,26 @@
       "target": "xr/ground-zero.html"
     },
     {
+      "source": "xr/branch-atlas/index.html",
+      "target": "xr/branch-atlas/index.html"
+    },
+    {
+      "source": "xr/branch-atlas/app.mjs",
+      "target": "xr/branch-atlas/app.mjs"
+    },
+    {
+      "source": "xr/branch-atlas/wireframe.mjs",
+      "target": "xr/branch-atlas/wireframe.mjs"
+    },
+    {
+      "source": "xr/branch-atlas/engine.mjs",
+      "target": "xr/branch-atlas/engine.mjs"
+    },
+    {
+      "source": "xr/branch-atlas/paths.json",
+      "target": "xr/branch-atlas/paths.json"
+    },
+    {
       "source": null,
       "target": ".nojekyll"
     }

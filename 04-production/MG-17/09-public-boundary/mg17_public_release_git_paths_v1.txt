@@ -5,6 +5,12 @@
 
 index.html
 mg17-intake.html
+xr/ground-zero.html
+xr/branch-atlas/index.html
+xr/branch-atlas/app.mjs
+xr/branch-atlas/engine.mjs
+xr/branch-atlas/wireframe.mjs
+xr/branch-atlas/paths.json
 
 Archive/archive-viewer-v2.html
 Archive/project-home-v2.html

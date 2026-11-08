@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#eff1e9">
+<title>MG-17 / Branch Atlas — Greenhouse in Transit</title>
+<style>
+:root{--paper:#f3f4ee;--paper2:#e9ede5;--ink:#283b32;--thin:#c6d0c5;--sub:#65786b;--lime:#778d72;--dark:#101c18}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,-apple-system,"Noto Sans SC","PingFang SC",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid #618573;outline-offset:3px}
+a{color:var(--ink);text-decoration:none;border-bottom:1px solid #7d9688}
+a:hover{color:#3f7964}
+.top{height:64px;display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid var(--thin);padding:0 23px}
+.logo{font-size:12px;letter-spacing:.05em;font-weight:700;white-space:nowrap}.logo span{color:var(--sub);font-weight:400}
+.top-links{display:flex;gap:18px;align-items:center;font-size:11px;color:var(--sub)}
+.top-links a{white-space:nowrap}
+.app{display:grid;grid-template-columns:255px minmax(370px,1fr) 314px;height:calc(100dvh - 64px);min-height:640px}
+.panel{overflow:auto;min-height:0;padding:22px;border-right:1px solid var(--thin);background:#f8f9f5}
+.side{border-right:0;border-left:1px solid var(--thin)}
+.kicker{font-size:10px;color:var(--sub);letter-spacing:.15em;text-transform:uppercase;font-family:ui-monospace,monospace}
+h1{font-size:32px;font-weight:500;line-height:1.02;letter-spacing:-.06em;margin:12px 0 11px}
+.description{font-size:12px;line-height:1.65;color:var(--sub);margin:0 0 16px}
+.rule{border-top:1px solid var(--thin);padding-top:8px;margin:18px 0 10px;color:var(--sub);letter-spacing:.12em;font:10px ui-monospace,monospace}
+.route-list{display:grid;gap:3px}
+.route{display:grid;grid-template-columns:30px 1fr 30px;gap:6px;align-items:center;width:100%;border:0;background:transparent;color:var(--ink);padding:11px 6px;text-align:left;font-size:12px;border-bottom:1px solid #e0e5dd}
+.route .count,.route .idx{font:10px ui-monospace,monospace;color:#89978c}
+.route.active,.route:hover{background:#dbe6d9}.route.active{box-shadow:inset 3px 0 #5d7966}
+.progress-line{height:3px;background:#dde2db;position:relative;margin:12px 0}
+.progress-line::before{content:"";display:block;height:100%;width:var(--progress,0%);background:#66876e;transition:width .2s}
+.guide{font:11px/1.6 ui-monospace,monospace;color:#526d5e}
+.viewport{position:relative;min-height:540px;overflow:hidden;background:radial-gradient(ellipse at 50% 45%,#eef3e9 0%,#dbe3da 58%,#c3d0c5 100%)}
+#scene{display:block;position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab}
+#scene.dragging{cursor:grabbing}
+.stage-top{position:absolute;top:20px;left:22px;right:22px;display:flex;justify-content:space-between;gap:12px;pointer-events:none}
+.stage-label{background:rgba(244,247,240,.74);border:1px solid #becbbe;padding:8px 10px;font:10px ui-monospace,monospace;letter-spacing:.06em}
+.stage-center-note{position:absolute;top:26%;left:50%;transform:translateX(-50%);max-width:290px;text-align:center;color:#4d6b5d;pointer-events:none}
+.stage-center-note h2{font-size:21px;font-weight:400;letter-spacing:-.04em;margin:0 0 7px}
+.stage-center-note p{font-size:11px;line-height:1.7;margin:0}
+.stage-bottom{position:absolute;left:22px;right:22px;bottom:20px;display:flex;align-items:end;justify-content:space-between;gap:12px;pointer-events:none}
+.legend{font:10px/1.7 ui-monospace,monospace;letter-spacing:.01em;background:rgba(244,247,240,.76);padding:8px 10px}
+.stage-panel{position:absolute;left:50%;bottom:66px;transform:translateX(-50%);display:flex;gap:6px;align-items:center;pointer-events:auto}
+.action{min-height:38px;border:1px solid #99afa0;background:rgba(245,249,241,.94);padding:9px 12px;color:#304b3c;white-space:nowrap;font-size:12px}
+.action:hover{background:#e0eddf}.action.primary{background:#334e3f;color:#f0f5ed;border-color:#334e3f}
+.action:disabled{opacity:.38;cursor:not-allowed}
+.stage-panel .action{box-shadow:0 2px 10px rgba(40,50,44,.06)}
+.stage-number{position:absolute;right:24px;top:79px;font:10px ui-monospace,monospace;color:#4d6857;text-align:right;pointer-events:none}
+.h2{font-size:21px;font-weight:500;line-height:1.2;letter-spacing:-.03em;margin:8px 0 8px}
+.node-desc{font-size:12px;line-height:1.75;color:#596d61;min-height:78px;margin:8px 0 13px}
+.choice-grid{display:grid;grid-template-columns:1fr;gap:2px}
+.choice{display:grid;grid-template-columns:24px 1fr 18px;gap:6px;align-items:center;width:100%;text-align:left;border:0;border-bottom:1px solid #e1e6df;padding:8px 5px;color:#3a4c41;background:transparent;font-size:11px}
+.choice span,.choice small{font:10px ui-monospace,monospace;color:#8a9b90}
+.choice.active,.choice:hover{background:#dfebe0}.choice.active{box-shadow:inset 2px 0 #77947c}
+.choice .done{color:#396f4b}
+.layer-toggle{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:10px 0}
+.layer-toggle button{border:1px solid #bccbbd;background:transparent;color:#536b5b;padding:7px 3px;font:10px ui-monospace,monospace}
+.layer-toggle button.active{background:#d5e3d3;color:#284532;border-color:#728f78}
+.variable{display:grid;grid-template-columns:1fr 38px;gap:8px;align-items:center;margin:14px 0}
+.variable label{grid-column:1/3;display:flex;justify-content:space-between;font-size:11px;color:#597062}
+.variable input{grid-column:1/3;width:100%;accent-color:#587c65;cursor:pointer}
+.metric-value{font:13px ui-monospace,monospace;color:#3d654e}
+.outcome{padding:12px;border:1px solid #c0d0c0;background:#e7eee5;color:#395645;font-size:11px;line-height:1.7;margin-top:14px}
+.card-actions{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:9px 0}
+.card-actions button{border:1px solid #aebfb1;background:transparent;color:#466251;padding:10px;font-size:11px}
+.card-actions button:hover{background:#e2ede0}
+.footer-note{font-size:10px;color:#86958a;line-height:1.75;margin-top:16px}
+.status{display:flex;gap:9px;align-items:center;font:10px ui-monospace,monospace;color:#65826e}
+.status i{width:6px;height:6px;border-radius:50%;background:#6da377;display:inline-block}
+@media(max-width:1120px){.app{grid-template-columns:214px minmax(300px,1fr) 285px}.panel{padding:16px}h1{font-size:28px}.top-links{gap:9px}}
+@media(max-width:900px){.app{display:flex;flex-direction:column;height:auto;min-height:0}.panel{overflow:visible;order:2;border:none;border-top:1px solid var(--thin)}.viewport{height:60vh;min-height:470px;order:1}.side{order:3}.route-list{grid-template-columns:repeat(3,1fr);gap:4px}.route{font-size:11px}.choice-grid{grid-template-columns:repeat(3,1fr);gap:3px}.choice{font-size:10px}.top{height:auto;min-height:55px}.top-links{font-size:10px;flex-wrap:wrap}}
+@media(max-width:520px){.top{padding:12px}.top-links a:nth-child(n+3){display:none}.route-list,.choice-grid{grid-template-columns:repeat(2,1fr)}.stage-top{left:10px;right:10px;top:10px}.stage-label{font-size:8px}.stage-bottom{left:10px;right:10px;bottom:10px}.stage-panel{bottom:80px;flex-wrap:wrap;justify-content:center;width:95%}.stage-panel .action{min-height:36px;font-size:10px}.viewport{min-height:460px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<header class="top">
+ <div class="logo">SONGJIAN / 松间 <span>· Greenhouse in Transit · MG-17</span></div>
+ <nav class="top-links" aria-label="关联入口">
+ <a href="../ground-zero.html">XR GROUND ZERO</a>
+ <a href="../../mg17-intake.html">现场登记</a>
+ <a href="../../Archive/archive-viewer-v2.html">世界观档案</a>
+ <a href="https://github.com/ewanqian/Greenhouse-in-Transit" target="_blank" rel="noopener">SOURCE</a>
+ </nav>
+</header>
+<div class="app">
+ <aside class="panel">
+  <div class="kicker">NARRATIVE BRANCH SELECTOR / 09</div>
+  <h1>箱中温室<br>空间叙事研究</h1>
+  <p class="description">雾庭舱 MG-17：被错误投递到现实的便携温室。九条并行研究路线，共 81 个可选择、可记录的互动事件。现阶段使用程序化线框替代最终美术资产。</p>
+  <div class="rule">CHOOSE AN INVESTIGATION / 探索路径</div>
+  <nav class="route-list" id="routes" aria-label="九条故事路线"></nav>
+  <div class="rule">PROGRESS / RESEARCH EVIDENCE</div>
+  <div class="progress-line" id="progress-line"></div>
+  <div class="guide" id="progress">已识别 0 / 81 · 当前路径 0 / 9</div>
+  <p class="footer-note">九条路线是基于已有世界观延展的独立交互草案，并非宣称原项目已制作完毕的九个章节。每条路线可单独淘汰或升级。</p>
+ </aside>
+ <main class="viewport" id="viewport">
+  <canvas id="scene" aria-label="可拖动旋转的三维线框箱体与温室；点击空间中的数字节点可查看证物" tabindex="0"></canvas>
+  <div class="stage-top"><span class="stage-label" id="stage-state">SEALED / EVIDENCE OBJECT</span><span class="stage-label" id="stage-route">01 / MISDELIVERY</span></div>
+  <div class="stage-number">MG-17<br>PORTABLE CONSERVATORY<br><span id="render-info">PROCEDURAL WIREFRAME</span></div>
+  <div class="stage-center-note" id="intro"><h2>一个被错投到现实的空间。</h2><p>打开箱体，进入温室。<br>用证物而非旁白推动故事。</p></div>
+  <div class="stage-panel">
+   <button id="open" class="action primary">01 / OPEN CASE</button>
+   <button id="enter" class="action" disabled>02 / ENTER</button>
+   <button id="leave" class="action" disabled>BACK / EXIT</button>
+   <button id="rehearse" class="action">REHEARSE 09</button>
+  </div>
+  <div class="stage-bottom">
+   <div class="legend">DRAG → ORBIT / SCROLL → ZOOM / CLICK NUMBERED NODE<br>Desktop / touch prototype. Existing XR baseline is linked above; not a physical anchor.</div>
+   <div class="legend" id="status">READY / LOCAL</div>
+  </div>
+ </main>
+ <aside class="panel side">
+  <div class="kicker">ARCHIVE / ACTIVE EVIDENCE</div>
+  <div class="h2" id="route-title">01 / 误投记录</div>
+  <p class="description" id="route-intro">一份没有收件人的记录。</p>
+  <div class="rule">09 ACTIONS IN THIS ROUTE / 选择节点</div>
+  <div id="choices" class="choice-grid" aria-label="九个交互选项"></div>
+  <div class="rule">SELECTED / 当前记录</div>
+  <div class="h2" id="selected-title">01 · 未认领编号</div>
+  <div id="selected-desc" class="node-desc">请选择一个空间节点，或从右侧直接选择。</div>
+  <div class="kicker" id="selected-action">INSPECT / 识别</div>
+  <div class="rule">VIEWER / WIREFRAME LAYERS</div>
+  <div class="layer-toggle" aria-label="线框显示模式">
+   <button class="active" data-layer="WIRE">STRUCTURE</button>
+   <button data-layer="SECTION">SECTION</button>
+   <button data-layer="MEMORY">MEMORY</button>
+  </div>
+  <div class="rule">SYSTEM VARIABLE / SPACE PERMEABILITY</div>
+  <div class="variable"><label for="permeability">边界渗透率 / PERMEABILITY <strong class="metric-value" id="p-val">12%</strong></label><input id="permeability" type="range" min="0" max="100" value="12"></div>
+  <details><summary class="guide" style="cursor:pointer">ADVANCED / 记忆与航路偏差</summary>
+   <div class="variable"><label for="memory">记忆显影度 / MEMORY <strong class="metric-value" id="m-val">8%</strong></label><input id="memory" type="range" min="0" max="100" value="8"></div>
+   <div class="variable"><label for="deviation">路由偏差 / DEVIATION <strong class="metric-value" id="d-val">78%</strong></label><input id="deviation" type="range" min="0" max="100" value="78"></div>
+  </details>
+  <div class="outcome" id="outcome">调查刚开始：先识别至少三件物证。</div>
+  <div class="rule">CAPTURE / HANDOFF</div>
+  <div class="card-actions"><button id="export">EXPORT SESSION JSON</button><button id="reset">RESET EXPLORATION</button></div>
+  <div class="status"><i></i> <span id="runtime-state">NO CDN / NO EXTERNAL MODEL</span></div>
+  <p class="footer-note">交互是真实实现的网页逻辑；三维绘制采用轻量自定义透视线框。未实现 Quest 原生 MR 空间锚定、WebXR 内部抓取、真实植物扫描或最终模型。此页不会收集或上传数据。</p>
+ </aside>
+</div>
+<script type="module" src="./app.mjs"></script>
+</body></html>
