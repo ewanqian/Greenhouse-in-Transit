@@ -12,7 +12,7 @@ const {chromium}=require('playwright');
   page.on('pageerror',e=>errors.push('PAGE: '+e.message));
   page.on('console',e=>{if(e.type()==='error')errors.push('CONSOLE: '+e.text())});
   await page.goto(src,{waitUntil:'domcontentloaded'});
-  await page.locator('#renderStatus').getByText(/WEBGL \/ ACTIVE/).waitFor({timeout:30000});
+  await page.waitForFunction(()=>document.getElementById('renderStatus')?.textContent?.includes('WEBGL / ACTIVE'),null,{timeout:30000});
   assert.match(await page.locator('#beat-title').innerText(),/误投证物/);
   assert.equal(await page.locator('#story-action').isEnabled(),true);
   await page.locator('#story-action').click(); // OPEN CASE
@@ -46,7 +46,7 @@ const {chromium}=require('playwright');
   const phone=await mobile.newPage();
   phone.on('pageerror',e=>errors.push('MOBILE: '+e.message));
   await phone.goto(src,{waitUntil:'domcontentloaded'});
-  await phone.locator('#renderStatus').getByText(/WEBGL \/ ACTIVE/).waitFor({timeout:30000});
+  await phone.waitForFunction(()=>document.getElementById('renderStatus')?.textContent?.includes('WEBGL / ACTIVE'),null,{timeout:30000});
   await phone.locator('#story-action').click();
   assert.match(await phone.locator('#beat-title').innerText(),/箱内调查/);
   assert.equal(await phone.locator('#beat-rail .beat').count(),6);
