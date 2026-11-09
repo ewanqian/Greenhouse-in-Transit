@@ -189,7 +189,7 @@ const state={phase:0,selected:null,seen:new Set(),auto:false,autoStamp:0,support
 let renderer,scene,camera,controls,root,lid,dome,garden,coreLight,caseMesh,raycaster,clickables=[],xrPanel,xrCanvas,xrCtx,xrTexture,autoTimer=null;
 let story=initialStory(),latchTarget=null,cueTarget=null,cueTexture=null,cueCanvas=null,cueCtx=null,ghostTraces=null,ghostMaterial=null,hoverPoint=null;
 let handDecoder=new PinchDwell(),lastXRInput=0,lastStoryAction=0,lastRaycastAt=0,storyRehearsal=[],storyRehearsing=false;
-let storyAudio=null,storyMuted=true,lastStoryRender='',lastStoryCue='',lastHandStatus='HAND / NOT TRACKED',wireMode=false;
+let storyAudio=null,storyMuted=true,lastStoryRender='',lastStoryCue='',lastHandStatus='HAND / NOT TRACKED',wireMode=false,captionUntil=0,captionItem=null;
 const perfOrigin=performance.now(),storyEvents=[],handStates=new Map();
 const bound=(v,min,max)=>Math.min(max,Math.max(min,v));
 
@@ -362,6 +362,8 @@ function syncStory(){
   el('beat-title').textContent=b.zh;
   el('beat-instruction').textContent=b.instruction;
   el('story-state-badge').textContent=b.en+' / '+String(p.beatIndex+1).padStart(2,'0');
+  const sceneMark=document.querySelector('.scene-head .scene-mark');
+  if(sceneMark)sceneMark.textContent='MG-17 / '+b.en;
   el('story-action').textContent=cue.label;
   el('story-action').disabled=!cue.enabled;
   el('story-action').dataset.action=cue.action;
@@ -381,7 +383,12 @@ function syncStory(){
   });
   latchTarget&&(latchTarget.visible=story.stage==='MISDELIVERED');
   paintCue();
-  updateXRPanel(b.zh,b.instruction+'\n'+cue.label);
+  if(story.stage==='INSPECT'&&captionItem&&performance.now()<captionUntil){
+    const evidence=ITEMS.find(x=>x.id===captionItem);
+    if(evidence)updateXRPanel(evidence.name,evidence.body);
+  }else{
+    captionItem=null;updateXRPanel(b.zh,b.instruction+'\n'+cue.label);
+  }
   if(story.stage==='HABITATION')el('story-action').textContent='新一位观众 / RESET';
 }
 function actionStory(type,id=null,source='DESKTOP'){
@@ -421,7 +428,10 @@ function handleArtifactPick(id,source){
     actionStory('GROW',null,source);select(id);return;
   }
   if(story.stage==='INSPECT'){
-    if(EVIDENCE.includes(id)){select(id);actionStory('SELECT_EVIDENCE',id,source);}
+    if(EVIDENCE.includes(id)){
+      captionItem=id;captionUntil=performance.now()+5200;
+      select(id);actionStory('SELECT_EVIDENCE',id,source);
+    }
     else if(ITEMS.some(x=>x.id===id)){select(id);noteStory('OPTIONAL PROP / '+id);}
   }else if(ITEMS.some(x=>x.id===id)){
     select(id);noteStory('OBJECT / '+id+' (BEAT LOCKED)');
@@ -432,7 +442,7 @@ function resetStory(){
   story=initialStory();
   storyEvents.length=0;el('experience-log').textContent='RESET / READY';
   handDecoder.reset();handStates.clear();lastStoryCue='';
-  lastStoryAction=0;lastHandStatus='HAND / NOT TRACKED';
+  lastStoryAction=0;lastHandStatus='HAND / NOT TRACKED';captionItem=null;captionUntil=0;
   reset();syncStory();
 }
 function stopRehearsal(){
@@ -686,6 +696,11 @@ function tick(now,xrFrame){
   }
   scene.updateMatrixWorld(true);
   if(renderer.xr.isPresenting)updateHeadsetHandFrame(now,xrFrame);
+  if(captionItem&&now>captionUntil&&story.stage==='INSPECT'){
+    captionItem=null;
+    const b=currentBeat(story),cue=nextCue(story);
+    updateXRPanel(b.zh,b.instruction+'\n'+cue.label);
+  }
   if(Number.isFinite(now)&&now-lastStatusAt>=150){
     updateStoryClock(now);lastStatusAt=now;
   }
