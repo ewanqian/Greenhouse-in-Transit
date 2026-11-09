@@ -123,6 +123,7 @@ footer{margin-top:20px;font-size:11px;color:#829086}.visually-hidden{position:ab
  <button id="story-export">EXPORT / 调查记录</button>
  <button id="story-audio">ENABLE AUDIO</button>
  <button id="story-rehearse">REHEARSE 85s</button>
+ <button id="wireframe-toggle">WIRE MODE / ON</button>
 </div>
 <div class="experience-small">独立实验 V1 · 桌面点击 / Quest 控制器射线 / 手部捏合 + 视线确认。没有物理手提箱空间锚定；手部跟踪实机尚未验收。REHEARSE 是明确标记的自动模拟。</div>
 <div class="section-label">PERFORMANCE INPUT LOG</div>
@@ -170,7 +171,7 @@ const state={phase:0,selected:null,seen:new Set(),auto:false,autoStamp:0,support
 let renderer,scene,camera,controls,root,lid,dome,garden,coreLight,caseMesh,raycaster,clickables=[],xrPanel,xrCanvas,xrCtx,xrTexture,autoTimer=null;
 let story=initialStory(),latchTarget=null,cueTarget=null,cueTexture=null,cueCanvas=null,cueCtx=null,ghostTraces=null,ghostMaterial=null,hoverPoint=null;
 let handDecoder=new PinchDwell(),lastXRInput=0,lastStoryAction=0,lastRaycastAt=0,storyRehearsal=[],storyRehearsing=false;
-let storyAudio=null,storyMuted=true,lastStoryRender='',lastStoryCue='',lastHandStatus='HAND / NOT TRACKED';
+let storyAudio=null,storyMuted=true,lastStoryRender='',lastStoryCue='',lastHandStatus='HAND / NOT TRACKED',wireMode=false;
 const perfOrigin=performance.now(),storyEvents=[],handStates=new Map();
 const bound=(v,min,max)=>Math.min(max,Math.max(min,v));
 
@@ -452,6 +453,19 @@ el('story-audio').addEventListener('click',()=>{
   if(storyMuted)enableStoryAudio();
   else{storyMuted=true;el('story-audio').textContent='ENABLE AUDIO'}
 });
+el('wireframe-toggle').addEventListener('click',()=>{
+  wireMode=!wireMode;
+  // A real triangle-edge wireframe fallback that preserves the existing
+  // authored dimensions and XR mesh picking; not a fake model screenshot.
+  for(const group of [caseMesh,garden]){
+    group?.traverse(obj=>{
+      if(!obj.isMesh||obj===latchTarget)return;
+      if(obj.material&&'wireframe' in obj.material)obj.material.wireframe=wireMode;
+    });
+  }
+  el('wireframe-toggle').textContent=wireMode?'WIREFRAME / OFF':'WIRE MODE / ON';
+  noteStory('VISUAL MATERIAL / '+(wireMode?'WIREFRAME':'SOLID'));
+});
 function updateStoryClock(now){
   if(!el('story-clock'))return;
   const t=story.startedAt===null?0:Math.max(0,Math.round((now-story.startedAt)/1000));
@@ -592,8 +606,65 @@ function updateHeadsetHandFrame(timestamp,xrFrame){
   lastHandStatus=pinchLabel;
 }
 const clock=new THREE.Clock();let lidValue=0,domeValue=0,gardenValue=0;
-function tick(){if(!renderer)return;const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;controls.enabled=!renderer.xr.isPresenting;if(controls.enabled)controls.update();if(lid){lidValue=THREE.MathUtils.damp(lidValue,state.phase===0?0:1,3.8,dt);lid.rotation.x=-lidValue*1.85}domeValue=THREE.MathUtils.damp(domeValue,state.phase===2?1:state.phase===3?.18:0,2.1,dt);gardenValue=THREE.MathUtils.damp(gardenValue,state.phase===2?1:state.phase===3?.2:0,1.5,dt);if(dome){dome.scale.setScalar(Math.max(.001,domeValue));dome.visible=domeValue>.006;dome.rotation.y=time*.04}if(garden){garden.scale.setScalar(Math.max(.001,gardenValue));garden.visible=gardenValue>.006}if(coreLight)coreLight.intensity=domeValue*6;if(xrPanel){xrPanel.visible=renderer.xr.isPresenting;xrPanel.lookAt(renderer.xr.isPresenting?renderer.xr.getCamera().position:camera.position)}if(clickables.length){clickables.forEach((m,i)=>{m.position.y=m.userData.baseY+Math.sin(time*1.8+i)*.009*(state.phase?1:0);if(m.material.emissive&&m.material.emissiveIntensity!==undefined)m.material.emissiveIntensity=state.selected===m.userData.artifactId ? .7 : .2})}renderer.render(scene,camera)}
-try{buildScene()}catch(e){el('fallback').style.display='block';el('renderStatus').textContent='WEBGL ERROR';console.error(e)}renderUI();XRSupport();
+let lastStatusAt=0;
+function tick(now,xrFrame){
+  if(!renderer)return;
+  const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
+  controls.enabled=!renderer.xr.isPresenting;
+  if(controls.enabled)controls.update();
+  const visual=cueRender(story);
+  if(lid){
+    const target=story.stage==='RECOVERY'?.42:story.stage==='HABITATION'?.85:visual.lid;
+    lidValue=THREE.MathUtils.damp(lidValue,target,3.4,dt);
+    lid.rotation.x=-lidValue*1.85;
+  }
+  domeValue=THREE.MathUtils.damp(domeValue,visual.dome,1.8,dt);
+  gardenValue=THREE.MathUtils.damp(gardenValue,visual.garden,1.4,dt);
+  if(dome){
+    dome.scale.setScalar(Math.max(.001,domeValue));
+    dome.visible=domeValue>.006;
+    dome.rotation.y=time*.02; // slow intentional motion, never a generic fast spin
+  }
+  if(garden){
+    garden.scale.setScalar(Math.max(.001,gardenValue));
+    garden.visible=gardenValue>.006;
+  }
+  if(coreLight)coreLight.intensity=visual.light*5;
+  if(ghostTraces){
+    ghostTraces.visible=visual.ghost>.001;
+    ghostMaterial.opacity=THREE.MathUtils.damp(ghostMaterial.opacity,visual.ghost*.72,2.3,dt);
+    ghostTraces.rotation.y=.09+time*.01;
+  }
+  if(xrPanel){
+    xrPanel.visible=renderer.xr.isPresenting;
+    const viewer=renderer.xr.isPresenting?
+      renderer.xr.getCamera().getWorldPosition(new THREE.Vector3()):camera.position;
+    xrPanel.lookAt(viewer);
+  }
+  if(cueTarget){
+    const viewer=renderer.xr.isPresenting?
+      renderer.xr.getCamera().getWorldPosition(new THREE.Vector3()):camera.position;
+    cueTarget.lookAt(viewer);
+    cueTarget.visible=true;
+  }
+  for(let i=0;i<clickables.length;i++){
+    const m=clickables[i];
+    if(Number.isFinite(m.userData.baseY))
+      m.position.y=m.userData.baseY+
+        Math.sin(time*1.3+i)*.005*(story.stage!=='MISDELIVERED'?1:0);
+    if(m.material?.emissive&&typeof m.material.emissiveIntensity==='number'){
+      const focus=story.seen.includes(m.userData.artifactId);
+      m.material.emissiveIntensity=focus?.55:story.stage==='INSPECT'?.20:.10;
+    }
+  }
+  scene.updateMatrixWorld(true);
+  if(renderer.xr.isPresenting)updateHeadsetHandFrame(now,xrFrame);
+  if(Number.isFinite(now)&&now-lastStatusAt>=150){
+    updateStoryClock(now);lastStatusAt=now;
+  }
+  renderer.render(scene,camera);
+}
+try{buildScene()}catch(e){el('fallback').style.display='block';el('renderStatus').textContent='WEBGL ERROR';console.error(e)}renderUI();if(state.engine)syncStory();XRSupport();
 </script>
 </body>
 </html>
