@@ -65,7 +65,11 @@ test('tracking loss cannot fabricate PINCH or leave stuck gate',()=>{
  assert.equal(p.update('right',null,210).events.length,0);
  assert.equal(p.update('right',null,410).events[0]?.kind,'TRACKING_LOST');
  assert.equal(p.update('right',null,420).events.length,0);
- p.update('right',.025,500);assert.equal(p.update('right',.025,610).events[0]?.kind,'PINCH');
+ assert.equal(p.update('right',.025,500).events.length,0);
+ assert.equal(p.update('right',.025,610).events.length,0);
+ p.update('right',.062,640);
+ p.update('right',.024,660);
+ assert.equal(p.update('right',.025,770).events[0]?.kind,'PINCH');
 });
 test('two hands isolated; 10000-frame simulated input does not storm',()=>{
  const p=new PinchDwell();let all=0;
