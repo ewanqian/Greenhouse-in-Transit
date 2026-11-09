@@ -34,7 +34,7 @@ tagged binary. NEVER load this experiment on the client's live production page. 
 <main>
 <div style="font:10px ui-monospace,monospace;letter-spacing:.13em;color:#74877a">EXPERIMENT / NOT PRODUCTION / 2026-11-09</div>
 <h1>相同的箱体模型，两种网页运行时</h1>
-<p>仅测试原仓库中 <code>assets/models/glb/mistgarden-case.glb</code> 的可读性、材质和轨道查看器差异。左侧 Three.js 0.165，右侧 Google 的 Three-Live Viewer 当前官方托管版。**不替换正式 XR 或演出系统。**</p>
+<p>通过实验专用文件 <code>xr/three-live-eval/mistgarden-case-validated.glb</code> 比较两个运行时；它只把原始 GLB JSON 分块的 1 个 NUL 错误填充字节改为规范要求的空格，原文件未修改。左侧 Three.js 0.165，右侧 Google 的 Three-Live Viewer 当前官方托管版。**不替换正式 XR 或演出系统。**</p>
 <div class="cols">
  <section class="card"><h2>01 / Existing Three.js</h2><p>GLTFLoader / OrbitControls / WebGL. 当前项目可维护基线。</p>
   <div class="view"><canvas id="three-stage"></canvas></div>
@@ -42,8 +42,8 @@ tagged binary. NEVER load this experiment on the client's live production page. 
  </section>
  <section class="card"><h2>02 / Google Three-Live</h2><p>Standalone &lt;three-live&gt; + 同一 GLB；如支持，可启用原生 AR 查看。</p>
   <div class="view">
-    <three-live id="live-stage" src="../../assets/models/glb/mistgarden-case.glb"
-      ios-src="../../assets/models/usdz/mistgarden-case.usdz"
+    <three-live id="live-stage" src="./mistgarden-case-validated.glb"
+      data-source-original="../../assets/models/glb/mistgarden-case.glb"
       camera-controls camera-orbit="45deg 22deg 3m"
       ar ar-modes="quick-look scene-viewer webxr" style="width:100%;height:100%;display:block">
     </three-live>
@@ -52,13 +52,13 @@ tagged binary. NEVER load this experiment on the client's live production page. 
  </section>
 </div>
 <div class="info">
-<div><strong>Same input model</strong><p>Existing 2.3 KB MG-17 placeholder GLB, not final artist asset. Identical source for both viewers.</p></div>
+<div><strong>Same input model</strong><p>Original 2.3 KB MG-17 placeholder GLB had invalid JSON chunk padding (NUL). Both viewers now load the same one-byte-corrected derivative.</p></div>
 <div><strong>Implementation strategy</strong><p>Preserve current WebXR/OSC/Show Score; measure this viewer independently rather than automatically migrating.</p></div>
 <div><strong>Validation limits</strong><p>A browser load doesn't establish Quest/Vision Pro native support, 25-joint gesture fidelity, USDZ parity or stage readiness.</p></div>
 </div>
 <div class="status" id="benchmark-log">Benchmark booting…</div>
 <footer>Third-party runtime: Google Three-Live, Apache 2.0, experimental open-source (not an officially supported Google product).
-The hosted module is unpinned; compare with a downloaded release-tagged 1.3.2 bundle before production use.
+The hosted module is unpinned; compare with a downloaded release-tagged 1.3.2 bundle before production use. The original author's binary placeholder remains untouched.
 User-owned media and existing project source remain unchanged.</footer>
 </main>
 <script type="module">
@@ -67,7 +67,7 @@ import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
 const logEl=document.getElementById('benchmark-log'),lines=[];
 function log(message){lines.unshift(new Date().toLocaleTimeString()+'  '+message);logEl.textContent=lines.slice(0,15).join('\n');}
-const asset='../../assets/models/glb/mistgarden-case.glb';
+const asset='./mistgarden-case-validated.glb';
 const canvas=document.getElementById('three-stage');
 const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true,powerPreference:'low-power'});
 renderer.outputColorSpace=THREE.SRGBColorSpace;
