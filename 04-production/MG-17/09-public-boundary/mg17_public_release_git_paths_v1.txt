@@ -11,6 +11,8 @@ xr/branch-atlas/app.mjs
 xr/branch-atlas/engine.mjs
 xr/branch-atlas/wireframe.mjs
 xr/branch-atlas/paths.json
+xr/experience-v2/index.html
+xr/experience-v2/score.mjs
 
 Archive/archive-viewer-v2.html
 Archive/project-home-v2.html

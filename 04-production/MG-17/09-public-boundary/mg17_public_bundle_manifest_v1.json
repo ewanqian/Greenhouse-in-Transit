@@ -61,6 +61,14 @@
     {
       "source": null,
       "target": ".nojekyll"
+    },
+    {
+      "source": "xr/experience-v2/index.html",
+      "target": "xr/experience-v2/index.html"
+    },
+    {
+      "source": "xr/experience-v2/score.mjs",
+      "target": "xr/experience-v2/score.mjs"
     }
   ]
 }

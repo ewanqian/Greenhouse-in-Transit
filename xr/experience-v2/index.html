@@ -1,0 +1,712 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#ece8df">
+<title>MG-17 / Spatial Performance V1 — Greenhouse in Transit</title>
+<style>
+:root{--paper:#f1ede4;--ink:#262b27;--sub:#697068;--line:#c9ccc2;--forest:#3d5547;--gold:#ae9368}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.55 "Avenir Next","PingFang SC","Microsoft YaHei",sans-serif}
+button,a{font:inherit}button{cursor:pointer}a{color:inherit}button:focus-visible,a:focus-visible{outline:2px solid #587b66;outline-offset:3px}
+.layout{height:100dvh;min-height:590px;display:grid;grid-template-columns:306px minmax(0,1fr) 314px;grid-template-rows:1fr;background:#e6e8e3}
+aside{min-height:0;overflow:auto;background:#f7f4ec;border-right:1px solid var(--line);padding:23px 20px 19px}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.brand{font-weight:750;letter-spacing:.14em;font-size:11px}.micro{font:10px/1.6 ui-monospace,SFMono-Regular,monospace;letter-spacing:.08em;color:#768075}
+h1{font:normal 37px/1.05 "Songti SC","Noto Serif SC",serif;letter-spacing:-.04em;margin:27px 0 12px}p{margin:0 0 12px}.lead{font-size:14px;line-height:1.85;color:#4f5950}
+.section-label{font:11px ui-monospace,monospace;letter-spacing:.14em;color:#6d786b;margin:27px 0 12px}
+.progress{height:4px;background:#d7d9d0;margin:13px 0}.progress>div{height:100%;background:#587b66;transition:width .2s}
+.object-btn{display:flex;align-items:center;width:100%;text-align:left;gap:11px;border:0;background:transparent;border-bottom:1px solid #dcddd5;padding:10px 3px;color:#515b52}
+.object-btn:hover,.object-btn.active{background:#e6e9df;color:#1b3028}.object-num{font:11px ui-monospace,monospace;min-width:26px;color:#879186}
+.object-name{flex:1}.object-mark{font:10px ui-monospace,monospace;color:#577c62}
+.scene{position:relative;overflow:hidden;background:radial-gradient(circle at 50% 45%,#d9ddd6,#acb9b0 80%)}
+#stage{display:block;width:100%;height:100%;touch-action:pan-y}
+.scene-head{position:absolute;top:20px;left:22px;right:22px;display:flex;align-items:flex-start;justify-content:space-between;pointer-events:none}
+.scene-head span{font:11px ui-monospace,monospace;letter-spacing:.11em;color:#3b5346}
+.scene-mark{border:1px solid #8f9c8f;padding:7px 10px;background:#e3e9df88}
+.scene-bottom{position:absolute;bottom:19px;left:22px;right:22px;display:flex;justify-content:space-between;gap:12px;align-items:end;pointer-events:none}
+.scene-bottom>div{font:11px ui-monospace,monospace;color:#44554a;background:#f4f5edb5;padding:8px 10px;max-width:450px}
+.panel{border-left:1px solid var(--line);background:#f4f2eb;padding:23px 21px;min-height:0;overflow:auto}
+.panel h2{font:normal 29px/1.2 "Songti SC","Noto Serif SC",serif;margin:20px 0 10px}
+.status{display:inline-block;border:1px solid #b7c2b5;padding:4px 8px;background:#e9eee8;color:#415e4b;font:11px ui-monospace,monospace}
+.meta{margin:16px 0 19px;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.meta>div{border-top:1px solid var(--line);padding-top:8px;color:#596157;font-size:12px}.meta b{display:block;font-weight:500;color:#8a9085;font:10px ui-monospace,monospace;letter-spacing:.05em;margin-bottom:4px}
+.controls{display:grid;gap:9px;margin-top:20px}
+.action{min-height:43px;border:1px solid #9fa99d;background:#f8f8f2;color:#2c4135;padding:9px 12px;text-align:left;transition:background .15s}
+.action:hover{background:#e0e6dc}.action.primary{background:#3d5547;color:#f8f5ec;border-color:#3d5547}.action.primary:hover{background:#2d4638}
+.action:disabled{cursor:not-allowed;opacity:.47}.action small{display:block;opacity:.7;margin-top:2px}
+.phase{display:flex;gap:6px;margin:17px 0}.phase button{flex:1;padding:9px 3px;font-size:11px;border:1px solid #bdc3b9;background:transparent;color:#566359}.phase button.active{background:#3d5547;color:white;border-color:#3d5547}
+.small{font-size:12px;color:#657065;line-height:1.8}.operator{display:none;margin-top:25px;border:1px dashed #8f9b88;padding:12px}.operator.visible{display:block}.operator .action{width:100%;margin:5px 0}
+#fallback{display:block;position:absolute;inset:35% 10% auto;background:#fffdf2e8;padding:22px;border:1px solid #b9c6b4;z-index:3}
+footer{margin-top:20px;font-size:11px;color:#829086}.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+@media(max-width:1120px){.layout{grid-template-columns:238px minmax(0,1fr) 270px}aside,.panel{padding:17px 14px}h1{font-size:31px}}
+@media(max-width:820px){.layout{height:auto;min-height:100dvh;display:flex;flex-direction:column}aside{order:1;border-right:0;padding:20px}.scene{order:2;height:56vh;min-height:400px}.panel{order:3;border-left:0}.object-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:14px}.phase{max-width:420px}.scene-head{top:10px;left:12px;right:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+
+/* New public performance experience; original Ground Zero remains untouched. */
+.story-track{position:absolute;z-index:5;bottom:81px;left:50%;transform:translateX(-50%);
+ background:rgba(244,248,241,.96);border:1px solid #829b88;display:flex;gap:7px;
+ align-items:center;padding:10px 12px;max-width:calc(100% - 24px);box-shadow:0 7px 27px #35493712}
+.story-track button{border:1px solid #8caa94;background:#2e4e39;color:white;padding:11px 14px;white-space:nowrap;min-height:44px}
+.story-track button:disabled{background:#d9e0d6;color:#657366;border-color:#b7c5b5}
+.story-track #story-clock{font:11px ui-monospace,monospace;color:#476351;white-space:nowrap}
+.story-track #gesture-live{font:10px ui-monospace,monospace;color:#476351;min-width:145px;max-width:225px}
+.story-evidence-hotkeys{position:absolute;left:50%;bottom:148px;transform:translateX(-50%);
+ z-index:6;display:flex;gap:6px;padding:7px;background:#edf3e9eb;border:1px solid #b5cbb7}
+.story-evidence-hotkeys[hidden]{display:none}
+.story-evidence-hotkeys button{border:1px solid #8eaa93;background:#eff5eb;padding:9px;color:#35573e;white-space:nowrap;font:11px ui-monospace,monospace}
+.story-evidence-hotkeys button[data-seen=true]{background:#d3e4d5;color:#4f7858}
+.experience-meta{border:1px solid #b0c6af;background:#e6eee2;padding:12px;margin-top:13px}
+.experience-meta .step-number{font:10px ui-monospace,monospace;letter-spacing:.1em;color:#597963}
+.experience-meta h3{font:normal 24px "Songti SC",serif;margin:5px 0 6px}
+.experience-meta p{font-size:12px;line-height:1.65;color:#4a6253;margin:0}
+.beat-rail{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:12px 0}
+.beat-rail .beat{height:7px;background:#d2dbd2;border:0}
+.beat-rail .beat.done{background:#a2bda3}
+.beat-rail .beat.active{background:#396d4c}
+#evidence-status{font:11px/1.8 ui-monospace,monospace;color:#3d6650;background:#edf3e9;padding:11px;margin:9px 0}
+.experience-commands{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:10px 0}
+.experience-commands button{padding:9px 7px;min-height:42px;background:#f6f7f1;border:1px solid #9fbaa4;color:#335440;font-size:11px}
+.experience-commands button:hover{background:#dceadf}
+.experience-small{font:10px/1.7 ui-monospace,monospace;color:#708577}
+#experience-log{min-height:80px;max-height:125px;overflow:auto;white-space:pre-wrap;
+ font:10px/1.7 ui-monospace,monospace;background:#edf1e9;padding:8px;color:#597563}
+.phase,#advanceBtn{display:none!important}
+#story-state-badge{position:absolute;top:70px;right:24px;background:#e5eee2cb;padding:7px 9px;
+ font:10px ui-monospace,monospace;color:#40624e;z-index:3;pointer-events:none}
+#story-audio{background:#e9f0e5;border:1px solid #b8cbb8}
+@media(max-width:900px){.story-track{bottom:78px;max-width:calc(100% - 12px);padding:7px}
+.story-track button{font-size:10px;padding:9px 8px;min-height:40px}
+.story-track #gesture-live{display:none}#story-state-badge{top:57px;right:10px;font-size:9px}}
+@media(max-width:820px){
+ .layout>main.scene{order:1;height:64vh;min-height:470px}
+ .layout>aside{order:2}
+ .layout>section.panel{order:3}
+}
+@media(max-width:480px){
+ .beat-rail{gap:3px}.story-track #story-clock{font-size:9px}
+ .story-evidence-hotkeys button{font-size:9px;padding:7px}
+}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.165.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div class="layout">
+<aside>
+<header><div class="brand">SONGJIAN / 松间</div><div class="micro">STB / MG-17</div></header>
+<div class="micro" style="margin-top:22px">EXPERIENCE V2 / 85-SECOND FIELD SCORE</div>
+<h1>箱中温室<br>Greenhouse<br>in Transit</h1>
+<p class="lead">一只错投到现实的 MG-17 雾庭舱。开启箱盖，辨认三件证物，再亲手决定花园是否被回收。</p><p class="small"><a href="../ground-zero.html">原版 Ground Zero / baseline</a> · <a href="../branch-atlas/index.html">九条故事研究</a></p>
+<div class="section-label">调查记录 / EVIDENCE</div>
+<div class="micro" id="progressText">已识别 0 / 6 件证物</div>
+<div class="progress"><div id="progressBar" style="width:0%"></div></div>
+<nav id="objectList" class="object-list" aria-label="物品列表"></nav>
+<div class="section-label">现场入口 / DOCUMENTS</div>
+<p class="small"><a href="../mg17-intake.html">MG-17 登记入口</a> · <a href="../Archive/archive-viewer-v2.html">完整档案数据库</a> · <a href="./branch-atlas/index.html">九条故事探索 / Branch Atlas</a></p>
+<footer>Prototype / procedural geometry. 不是最终生产模型，也不读取个人数据。</footer>
+</aside>
+<main class="scene" aria-label="3D 温室场景">
+<canvas id="stage" tabindex="0" aria-label="可拖动观察的 3D 行李箱；使用右侧流程按钮和左侧证物列表"></canvas>
+<div class="scene-head"><span class="scene-mark">MG-17 · MISDELIVERED</span><span class="scene-mark" id="renderStatus">ENGINE / INITIALIZING</span></div>
+<div id="fallback">3D 引擎正在载入。如果持续显示，请检查网络和浏览器 WebGL 支持；仍可通过左侧证物列表阅读档案。请使用 HTTPS。</div>
+<div class="scene-bottom"><div id="sceneHint">拖拽旋转 / 滚轮缩放 / 点击物件；头显使用射线选择</div><div id="deviceStatus">Checking WebXR</div></div>
+<div id="story-state-badge">MG-17 / READY</div>
+<div id="story-evidence-hotkeys" class="story-evidence-hotkeys" hidden>
+ <button data-evidence="ticket">01 TICKET</button>
+ <button data-evidence="parameter">02 CLIMATE</button>
+ <button data-evidence="sample">03 BOTANY</button>
+</div>
+<div class="story-track">
+ <button id="story-action">开启箱盖 / OPEN CASE</button>
+ <span id="story-clock">00:00 / 01:25</span>
+ <span id="gesture-live">INPUT: MOUSE / RAY · HAND STANDBY</span>
+</div>
+</main>
+<section class="panel" aria-live="polite">
+<div class="micro">SPATIAL TRANSFER BUREAU / PERFORMANCE V1</div><div class="status" id="stateBadge">UNCLAIMED / 未认领</div>
+<h2 id="infoTitle">MG-17 雾庭舱</h2>
+<p id="infoCopy" class="lead">一个被错投的容器。请选择物件，读取它与赛尼亚岛之间的关系。</p>
+<div class="meta"><div><b>OBJECT ID</b><span id="infoId">MG-17</span></div><div><b>ROLE / TYPE</b><span id="infoType">便携空间容器</span></div><div><b>STATUS</b><span id="infoState">现场调查中</span></div><div><b>ORIGIN</b><span>赛尼亚岛 / 松间</span></div></div>
+<div class="experience-meta">
+ <div class="step-number" id="beat-index">BEAT 01 / 06 · 00:00</div>
+ <h3 id="beat-title">误投证物</h3>
+ <p id="beat-instruction">查看箱体正面锁扣，用手势或鼠标有意开启。</p>
+</div>
+<div id="beat-rail" class="beat-rail" aria-label="六阶段演出进度"></div>
+<div id="evidence-status">TICKET · PARAMETER · SAMPLE / 0 OF 3</div>
+<div class="experience-commands">
+ <button id="story-reset">RESET / 下一位访客</button>
+ <button id="story-export">EXPORT / 调查记录</button>
+ <button id="story-audio">ENABLE AUDIO</button>
+ <button id="story-rehearse">REHEARSE 85s</button>
+ <button id="wireframe-toggle">WIRE MODE / ON</button>
+</div>
+<div class="experience-small">独立实验 V1 · 桌面点击 / Quest 控制器射线 / 手部捏合 + 视线确认。没有物理手提箱空间锚定；手部跟踪实机尚未验收。REHEARSE 是明确标记的自动模拟。</div>
+<div class="section-label">PERFORMANCE INPUT LOG</div>
+<div id="experience-log">NO INPUT</div>
+<div class="section-label">GROUND ZERO / 原始四阶段基线</div>
+<div class="phase" role="group" aria-label="流程阶段"><button data-phase="0" class="active">01 封存</button><button data-phase="1">02 调查</button><button data-phase="2">03 展开</button><button data-phase="3">04 遗留</button></div>
+<p class="small" id="phaseCopy">在现实中发现容器。开启箱体，开始证物调查。</p>
+<div class="controls">
+<button id="advanceBtn" class="action primary">开启调查 / OPEN CASE</button>
+<button id="vrBtn" class="action" disabled>检查沉浸模式…</button>
+<button id="arBtn" class="action" disabled style="display:none">进入透视 AR / QUEST MR</button>
+<button id="recordBtn" class="action">复制本次调查摘要</button>
+</div>
+<div class="operator" id="operator">
+<div class="section-label" style="margin-top:0">OPERATOR / 运营控制台</div>
+<p class="small">用于展示前复位、强制跳段、预检及轮换下一位观众。无远程控制和数据库上传。</p>
+<div class="micro" id="operatorDiag">尚未检测</div>
+<button class="action" id="resetBtn">恢复起始状态 / RESET</button>
+<button class="action" id="autoBtn">播放四段演示 / AUTO CUE</button>
+<button class="action" id="stopBtn">停止演示 / STOP</button>
+</div>
+<footer>现场操作：访问本页加 <code>?operator=1</code> 启用运营面板。键盘 1–4 切段、R 复位、Esc 结束头显会话。</footer>
+</section>
+</div>
+<script type="module">
+import {initial as initialStory, reduce as storyReduce, beat as currentBeat, nextCue, eligible as readyToGrow, renderMode as cueRender, progress as cueProgress, exportRecord, PinchDwell, EVIDENCE, BEATS} from './score.mjs';
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+const ITEMS=[
+{id:'ticket',name:'数字航行票据',type:'旅客通行凭证',code:'STB-01',body:'赛尼亚岛旅客的登船凭证。表层是一次普通的数字旅居，深层则在潮线网络留下到访记录。旅客身份仍未公开。',color:0xb3a077},
+{id:'tag',name:'异常失物标签',type:'转栈署证物',code:'STB-02',body:'这不是一场预定的送达。转栈署标记了空间复制偏移，容器脱离原有运输路线，进入现实。',color:0x819783},
+{id:'parameter',name:'环境参数卡',type:'微气候记录',code:'STB-03',body:'记录温室的纬度、气候、湿度、植物种类与封存时间。具体测量值尚未核验，演示版不虚构数据。',color:0xa5b2a2},
+{id:'sample',name:'植物记忆样本',type:'封存样本 / 概念件',code:'STB-04',body:'一个环境被压缩后的残留。植物不只是陈列对象，也成为旅客在另一处空间留下的感官记忆。样本模型为程序化占位。',color:0xc1d4aa},
+{id:'utility',name:'旅居洗漱套件',type:'日常备品',code:'STB-05',body:'来自松间旅居服务的生活物件，包括软毛牙刷与定制拖鞋。普通日常让“丢失的空间”变得可以相信。实体版本待制作。',color:0xcfc5af},
+{id:'core',name:'雾庭舱核心',type:'空间封存装置',code:'MG-17',body:'这不是行李箱内部的一件物品，而是一种可携带的温室空间。核心启动后，临时温室从箱体中心向外展开。',color:0xd8bb78}
+];
+const PHASES=[
+{title:'封存',desc:'在现实中发现容器。开启箱体，开始证物调查。'},
+{title:'调查',desc:'逐一选择箱内六件证物，读取其来源、归属与异常记录。'},
+{title:'展开',desc:'Ground Zero：以行李箱为原点，封存温室向外显影。'},
+{title:'遗留',desc:'空间收束，记录仍然留在现实。可重新调查或导出摘要。'}
+];
+const el=id=>document.getElementById(id);
+const state={phase:0,selected:null,seen:new Set(),auto:false,autoStamp:0,supportedVR:false,supportedAR:false,operator:new URLSearchParams(location.search).get('operator')==='1',engine:false};
+let renderer,scene,camera,controls,root,lid,dome,garden,coreLight,caseMesh,raycaster,clickables=[],xrPanel,xrCanvas,xrCtx,xrTexture,autoTimer=null;
+let story=initialStory(),latchTarget=null,cueTarget=null,cueTexture=null,cueCanvas=null,cueCtx=null,ghostTraces=null,ghostMaterial=null,hoverPoint=null;
+let handDecoder=new PinchDwell(),lastXRInput=0,lastStoryAction=0,lastRaycastAt=0,storyRehearsal=[],storyRehearsing=false;
+let storyAudio=null,storyMuted=true,lastStoryRender='',lastStoryCue='',lastHandStatus='HAND / NOT TRACKED',wireMode=false,captionUntil=0,captionItem=null;
+const perfOrigin=performance.now(),storyEvents=[],handStates=new Map();
+const bound=(v,min,max)=>Math.min(max,Math.max(min,v));
+
+const mat=(color,metalness=.1,roughness=.7,extra={})=>new THREE.MeshStandardMaterial({color,metalness,roughness,...extra});
+const ink=mat(0x303e35),silver=mat(0xa8afae,.75,.3),edge=mat(0x657472,.55,.4),paper=mat(0xe6d9ba),sage=mat(0x557861),brass=mat(0xa28b59,.62,.3);
+function mesh(parent,geom,material,pos=[0,0,0],rot=[0,0,0]){const m=new THREE.Mesh(geom,material);m.position.set(...pos);m.rotation.set(...rot);parent.add(m);return m;}
+function box(parent,size,pos,material){return mesh(parent,new THREE.BoxGeometry(...size),material,pos)}
+function mark(mesh,id){mesh.userData.artifactId=id;clickables.push(mesh);return mesh}
+function roundedLine(parent,points,color=0xc9c4a7){const g=new THREE.BufferGeometry().setFromPoints(points.map(p=>new THREE.Vector3(...p)));let l=new THREE.Line(g,new THREE.LineBasicMaterial({color,transparent:true,opacity:.75}));parent.add(l);return l}
+function pillLabel(text,pos,parent){const canvas=document.createElement('canvas');canvas.width=512;canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle='#f0e7d1';ctx.fillRect(0,0,512,128);ctx.strokeStyle='#7f9888';ctx.lineWidth=5;ctx.strokeRect(3,3,506,122);ctx.fillStyle='#365444';ctx.font='600 41px "PingFang SC",sans-serif';ctx.textAlign='center';ctx.fillText(text,256,79);const tex=new THREE.CanvasTexture(canvas);tex.colorSpace=THREE.SRGBColorSpace;const q=mesh(parent,new THREE.PlaneGeometry(.53,.13),new THREE.MeshBasicMaterial({map:tex,side:THREE.DoubleSide,transparent:true}),pos);return q}
+function buildScene(){
+scene=new THREE.Scene();scene.background=new THREE.Color(0xc8d0c7);scene.fog=new THREE.FogExp2(0xc8d0c7,.037);
+camera=new THREE.PerspectiveCamera(55,1,.02,80);camera.position.set(1.35,1.46,1.06);
+renderer=new THREE.WebGLRenderer({canvas:el('stage'),antialias:true,powerPreference:'high-performance',alpha:false});
+renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.1;renderer.xr.enabled=true;
+controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,1.0,-2.2);controls.enableDamping=true;controls.minDistance=1.2;controls.maxDistance=9;controls.maxPolarAngle=Math.PI*.54;controls.update();
+scene.add(new THREE.HemisphereLight(0xf8fbef,0x647467,2.25));
+const key=new THREE.DirectionalLight(0xfff5d8,2.6);key.position.set(-3,7,4);scene.add(key);
+const fill=new THREE.DirectionalLight(0xc3e7cd,1.3);fill.position.set(4,3,-5);scene.add(fill);
+root=new THREE.Group();root.position.set(0,0,-2.2);scene.add(root);
+mesh(root,new THREE.CircleGeometry(4.8,80),mat(0x9fab9e,0,.98),[0,-.018,0],[-Math.PI/2,0,0]);
+for(let i=0;i<5;i++){const ring=mesh(root,new THREE.RingGeometry(.8+i*.72,.806+i*.72,80),new THREE.MeshBasicMaterial({color:0xe7f0df,transparent:true,opacity:.2-i*.025,side:THREE.DoubleSide}),[0,.001,0],[-Math.PI/2,0,0]);ring.renderOrder=1}
+mesh(root,new THREE.CylinderGeometry(.07,.09,.66,12),edge,[0,.33,0]);
+caseMesh=new THREE.Group();caseMesh.position.y=.66;root.add(caseMesh);
+box(caseMesh,[1.3,.22,.86],[0,.03,0],silver);
+box(caseMesh,[1.27,.028,.83],[0,.155,0],edge);
+for(const x of [-.58,.58]){for(const z of [-.36,.36])box(caseMesh,[.036,.25,.04],[x,.08,z],brass)}
+box(caseMesh,[.33,.04,.06],[0,-.13,.45],edge);
+latchTarget=mesh(caseMesh,new THREE.BoxGeometry(.63,.38,.20),
+ new THREE.MeshBasicMaterial({color:0xd6eccf,transparent:true,opacity:0,depthWrite:false,colorWrite:false}),
+ [0,-.12,.47]);
+mark(latchTarget,'latch');
+
+lid=new THREE.Group();lid.position.set(0,.16,-.42);caseMesh.add(lid);
+box(lid,[1.3,.13,.86],[0,.03,.42],silver);box(lid,[1.24,.01,.8],[0,-.043,.42],mat(0x71857a));
+for(let x of [-.52,.52])box(lid,[.025,.14,.75],[x,.03,.42],edge);
+const inside=new THREE.Group();inside.position.y=.18;caseMesh.add(inside);
+function addArtifact(id,x,z,geometry,material,ry=0){const m=mesh(inside,geometry,material,[x,.11,z],[0,ry,0]);mark(m,id);m.userData.baseY=m.position.y;return m}
+addArtifact('ticket',-.40,-.19,new THREE.BoxGeometry(.30,.012,.16),paper,.12);
+addArtifact('tag',.4,-.22,new THREE.BoxGeometry(.19,.02,.20),brass,-.2);
+addArtifact('parameter',-.37,.19,new THREE.BoxGeometry(.29,.016,.19),sage,-.13);
+addArtifact('utility',.34,.22,new THREE.CapsuleGeometry(.055,.24,4,10),mat(0xeee7da),.3).rotation.x=Math.PI/2;
+addArtifact('sample',-.06,.22,new THREE.IcosahedronGeometry(.11,1),mat(0xaecfae,.05,.12,{transparent:true,opacity:.88,emissive:0x426b45,emissiveIntensity:.22}));
+const c=addArtifact('core',.04,-.12,new THREE.SphereGeometry(.16,24,14),mat(0xc5dfbb,.2,.14,{emissive:0x7c9b74,emissiveIntensity:.5}));c.position.y=.23;
+const names={ticket:'01 票据',tag:'02 失物标签',parameter:'03 参数',utility:'05 备品',sample:'04 样本',core:'06 核心'};
+for(const m of clickables){const id=m.userData.artifactId;const label=pillLabel(names[id], [m.position.x,.42,m.position.z-.16],inside);label.userData.follow=id}
+dome=new THREE.Group();dome.position.y=.7;root.add(dome);
+const shell=new THREE.Mesh(new THREE.SphereGeometry(1.75,32,18,0,Math.PI*2,0,Math.PI*.54),new THREE.MeshBasicMaterial({color:0xd9e8d3,wireframe:true,transparent:true,opacity:.35,depthWrite:false}));shell.scale.y=1.07;dome.add(shell);
+for(let i=0;i<9;i++){const theta=(i/9)*Math.PI*2;roundedLine(dome,[[0,0,0],[Math.cos(theta)*1.7,.08,Math.sin(theta)*1.7]],0xd7e9ce)}
+garden=new THREE.Group();garden.position.y=.7;root.add(garden);
+const stems=mat(0x5c7862),leaf=mat(0x98b99c,0,.84,{side:THREE.DoubleSide}),leaf2=mat(0x779f87,0,.82,{side:THREE.DoubleSide});
+for(let k=0;k<18;k++){const a=k*2.39996;const rr=.25+Math.sqrt((k+.5)/18)*1.2;const x=Math.cos(a)*rr,z=Math.sin(a)*rr;const h=.32+(k%7)*.085;mesh(garden,new THREE.CylinderGeometry(.012,.019,h,5),stems,[x,h/2,z]);for(let j=0;j<3;j++){const y=h*(.37+j*.22),angle=a+j*2.3;const l=mesh(garden,new THREE.SphereGeometry(.12,8,5),j%2?leaf:leaf2,[x+Math.cos(angle)*.10,y,z+Math.sin(angle)*.10],[0,angle,.35]);l.scale.set(.42,1.3,.75)}}
+coreLight=new THREE.PointLight(0xc5efb6,0,5);coreLight.position.set(0,1.45,0);root.add(coreLight);
+// The final memories are original directional line geometry, not copied films/splats.
+ghostTraces=new THREE.Group();ghostTraces.position.set(0,.70,0);root.add(ghostTraces);
+ghostMaterial=new THREE.LineBasicMaterial({color:0xa2b6ac,transparent:true,opacity:0,depthWrite:false});
+for(let i=0;i<27;i++){
+  const a=i*2.39996,rad=.35+Math.sqrt((i+.5)/27)*1.10,pts=[];
+  for(let k=0;k<32;k++){
+    const t=k/31,theta=a+t*3.7;
+    pts.push(new THREE.Vector3(Math.cos(theta)*rad*(1-t*.16),
+      .03+t*(.55+.06*(i%5)),Math.sin(theta)*rad*(1-t*.16)));
+  }
+  const trace=new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),ghostMaterial);
+  ghostTraces.add(trace);
+}
+hoverPoint=mesh(scene,new THREE.RingGeometry(.022,.032,32),
+  new THREE.MeshBasicMaterial({color:0xadcbb5,side:THREE.DoubleSide,depthTest:false}));
+hoverPoint.visible=false;hoverPoint.renderOrder=20;
+cueCanvas=document.createElement('canvas');cueCanvas.width=768;cueCanvas.height=176;
+cueCtx=cueCanvas.getContext('2d');cueTexture=new THREE.CanvasTexture(cueCanvas);
+cueTexture.colorSpace=THREE.SRGBColorSpace;
+cueTarget=mesh(root,new THREE.PlaneGeometry(.85,.20),
+  new THREE.MeshBasicMaterial({map:cueTexture,transparent:true,side:THREE.DoubleSide,depthTest:false}),
+  [.80,1.26,.50]);
+cueTarget.renderOrder=12;mark(cueTarget,'cue');
+
+makeXRPanel();
+raycaster=new THREE.Raycaster();renderer.domElement.addEventListener('click',onCanvasClick);
+for(let i=0;i<2;i++){
+  const controller=renderer.xr.getController(i);root.parent.add(controller);
+  controller.addEventListener('select',event=>{
+    // Hand pinches are decoded with 90ms dwell from XRFrame joint poses below.
+    // Some runtimes also dispatch synthetic selects; never double count them.
+    if(event.data?.inputSource?.hand)return;
+    const origin=new THREE.Vector3().setFromMatrixPosition(controller.matrixWorld);
+    const direction=new THREE.Vector3(0,0,-1).transformDirection(controller.matrixWorld);
+    const r=new THREE.Raycaster(origin,direction,.02,5);
+    processSceneRay(r,'XR_RAY');
+  });
+  const line=mesh(controller,new THREE.CylinderGeometry(.002,.002,2,6),
+    new THREE.MeshBasicMaterial({color:0xe4f4dd}),[0,0,-1],[Math.PI/2,0,0]);
+  line.visible=false;
+  controller.addEventListener('connected',()=>line.visible=true);
+  controller.addEventListener('disconnected',()=>line.visible=false);
+}
+renderer.setAnimationLoop(tick);
+const observer=new ResizeObserver(resize);observer.observe(el('stage'));resize();state.engine=true;el('renderStatus').textContent='WEBGL / ACTIVE';el('fallback').style.display='none';
+}
+// --- AUTHOR-LOCKED MG17 VISITOR LOOP / not an automatic slide deck ---
+function noteStory(message){
+  const t=new Date().toLocaleTimeString();
+  storyEvents.unshift(t+'  '+message);
+  if(storyEvents.length>12)storyEvents.length=12;
+  el('experience-log').textContent=storyEvents.join('\n');
+}
+function enableStoryAudio(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return false;
+    if(!storyAudio)storyAudio=new AC({latencyHint:'interactive'});
+    void storyAudio.resume().catch(()=>{});
+    storyMuted=false;
+    el('story-audio').textContent='MUTE SOUND';
+    return true;
+  }catch(e){noteStory('AUDIO NOT AVAILABLE / '+e.message);return false}
+}
+function soundCue(type){
+  if(storyMuted||!storyAudio||storyAudio.state!=='running')return;
+  const ctx=storyAudio,t=ctx.currentTime+.008;
+  const rootFreq={OPEN_CASE:174.61,SELECT_EVIDENCE:293.66,GROW:130.81,
+    TRACE:392,RECALL:98,STAY:261.63}[type]||196;
+  const duration=type==='GROW'?2.5:type==='RECALL'?1.8:type==='STAY'?2.6:.46;
+  const voices=type==='GROW'?[1,1.5,2.01,2.99]:
+    type==='RECALL'?[1,.78,1.62]:[1,1.499,2.005];
+  const bus=ctx.createGain(),filter=ctx.createBiquadFilter();
+  const comp=ctx.createDynamicsCompressor();
+  comp.threshold.value=-20;comp.ratio.value=12;comp.attack.value=.004;
+  filter.type='lowpass';filter.frequency.value=type==='RECALL'?1250:2350;
+  bus.gain.setValueAtTime(.0001,t);
+  bus.gain.exponentialRampToValueAtTime(.07,t+.055);
+  bus.gain.exponentialRampToValueAtTime(.0001,t+duration);
+  bus.connect(filter);filter.connect(comp);comp.connect(ctx.destination);
+  for(let i=0;i<voices.length;i++){
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=i===0?'triangle':'sine';
+    o.frequency.value=rootFreq*voices[i];
+    g.gain.value=.26/voices.length;
+    o.connect(g);g.connect(bus);
+    o.start(t);o.stop(t+duration+.035);
+    o.onended=()=>{try{o.disconnect();g.disconnect()}catch{}};
+  }
+  setTimeout(()=>{try{bus.disconnect();filter.disconnect();comp.disconnect()}catch{}},
+    (duration+.20)*1000);
+}
+function paintCue(){
+  if(!cueCtx||!cueTarget)return;
+  const cue=nextCue(story),label=cue.label;
+  if(lastStoryCue===label)return;
+  lastStoryCue=label;
+  cueCtx.clearRect(0,0,768,176);
+  cueCtx.fillStyle=cue.enabled?'#f0f5e9':'#d7ded3';
+  cueCtx.fillRect(0,0,768,176);
+  cueCtx.strokeStyle=cue.enabled?'#6c9878':'#a2b3a5';
+  cueCtx.lineWidth=8;cueCtx.strokeRect(5,5,758,166);
+  cueCtx.fillStyle='#37634b';cueCtx.font='28px monospace';
+  cueCtx.fillText('STB / MG-17 · PINCH OR SELECT',27,49);
+  cueCtx.font='bold 41px "PingFang SC",sans-serif';
+  cueCtx.fillText(label.slice(0,31),27,116);
+  cueCtx.font='22px monospace';
+  cueCtx.fillText(story.stage+' / '+(cue.enabled?'ARMED':'EVIDENCE LOCK'),27,152);
+  cueTexture.needsUpdate=true;
+  cueTarget.material.opacity=cue.enabled?1:.68;
+}
+function syncStory(){
+  const b=currentBeat(story),p=cueProgress(story),cue=nextCue(story);
+  const stageToOld={MISDELIVERED:0,INSPECT:1,BLOOM:2,AFTERIMAGE:2,RECOVERY:3,HABITATION:2};
+  setPhase(stageToOld[story.stage]||0);
+  el('beat-index').textContent='BEAT '+String(p.beatIndex+1).padStart(2,'0')+' / 06';
+  el('beat-title').textContent=b.zh;
+  el('beat-instruction').textContent=b.instruction;
+  el('story-state-badge').textContent=b.en+' / '+String(p.beatIndex+1).padStart(2,'0');
+  const sceneMark=document.querySelector('.scene-head .scene-mark');
+  if(sceneMark)sceneMark.textContent='MG-17 / '+b.en;
+  el('story-action').textContent=cue.label;
+  el('story-action').disabled=!cue.enabled;
+  el('story-action').dataset.action=cue.action;
+  el('story-evidence-hotkeys').hidden=story.stage!=='INSPECT';
+  for(const btn of el('story-evidence-hotkeys').querySelectorAll('button')){
+    btn.dataset.seen=String(story.seen.includes(btn.dataset.evidence));
+  }
+  el('evidence-status').textContent=EVIDENCE.map(id=>
+    (story.seen.includes(id)?'✓ ':'○ ')+
+    ({ticket:'01 / TICKET',parameter:'02 / CLIMATE',sample:'03 / BOTANICAL'}[id]))
+    .join('   ')+'  ·  '+story.seen.length+'/3';
+  el('sceneHint').textContent='操作：对准空间中的光标或锁扣捏合；调查阶段选择票据、参数卡、植物样本';
+  const bar=el('beat-rail');bar.replaceChildren();
+  BEATS.forEach((x,i)=>{
+    const d=document.createElement('div');d.className='beat'+(i<p.beatIndex?' done':i===p.beatIndex?' active':'');
+    d.setAttribute('aria-label',x.zh);bar.appendChild(d);
+  });
+  latchTarget&&(latchTarget.visible=story.stage==='MISDELIVERED');
+  paintCue();
+  if(story.stage==='INSPECT'&&captionItem&&performance.now()<captionUntil){
+    const evidence=ITEMS.find(x=>x.id===captionItem);
+    if(evidence)updateXRPanel(evidence.name,evidence.body);
+  }else{
+    captionItem=null;updateXRPanel(b.zh,b.instruction+'\n'+cue.label);
+  }
+  if(story.stage==='HABITATION')el('story-action').textContent='新一位观众 / RESET';
+}
+function actionStory(type,id=null,source='DESKTOP'){
+  if(type==='RESET'){resetStory();return true;}
+  const now=performance.now();
+  if(source.startsWith('XR')&&now-lastStoryAction<260)return false;
+  const before=story.stage;
+  const next=storyReduce(story,{type,id,source,t_ms:now});
+  if(next===story){
+    if(type==='GROW'&&story.stage==='INSPECT')noteStory('WAIT / THREE EVIDENCE REQUIRED ('+story.seen.length+'/3)');
+    return false;
+  }
+  story=next;lastStoryAction=now;
+  noteStory(source+' / '+type+(id?' · '+id:'')+
+    (before!==story.stage?' → '+story.stage:''));
+  if(before!==story.stage)syncStory();
+  else{
+    el('evidence-status').textContent=EVIDENCE.map(x=>(story.seen.includes(x)?'✓ ':'○ ')+x).join(' · ');
+    paintCue();
+    if(story.stage==='INSPECT')syncStory();
+  }
+  soundCue(type);
+  return true;
+}
+function handleArtifactPick(id,source){
+  if(id==='latch'){
+    if(story.stage==='MISDELIVERED')actionStory('OPEN_CASE',null,source);
+    return;
+  }
+  if(id==='cue'){
+    const c=nextCue(story);
+    if(c.enabled)actionStory(c.action,null,source);
+    else noteStory('LOCKED / '+c.label);
+    return;
+  }
+  if(id==='core'&&story.stage==='INSPECT'&&readyToGrow(story)){
+    actionStory('GROW',null,source);select(id);return;
+  }
+  if(story.stage==='INSPECT'){
+    if(EVIDENCE.includes(id)){
+      captionItem=id;captionUntil=performance.now()+5200;
+      select(id);actionStory('SELECT_EVIDENCE',id,source);
+    }
+    else if(ITEMS.some(x=>x.id===id)){select(id);noteStory('OPTIONAL PROP / '+id);}
+  }else if(ITEMS.some(x=>x.id===id)){
+    select(id);noteStory('OBJECT / '+id+' (BEAT LOCKED)');
+  }
+}
+function resetStory(){
+  stopRehearsal();
+  story=initialStory();
+  storyEvents.length=0;el('experience-log').textContent='RESET / READY';
+  handDecoder.reset();handStates.clear();lastStoryCue='';
+  lastStoryAction=0;lastHandStatus='HAND / NOT TRACKED';captionItem=null;captionUntil=0;
+  reset();syncStory();
+}
+function stopRehearsal(){
+  storyRehearsal.forEach(clearTimeout);storyRehearsal=[];
+  storyRehearsing=false;el('story-rehearse').textContent='REHEARSE 85s';
+}
+function startRehearsal(){
+  if(storyRehearsing){stopRehearsal();return;}
+  resetStory();storyRehearsing=true;el('story-rehearse').textContent='STOP REHEARSAL';
+  // Stage cue script, not a human action. No automatic path on normal launch.
+  const steps=[
+    [7500,'OPEN_CASE'],[17500,'SELECT_EVIDENCE','ticket'],
+    [25500,'SELECT_EVIDENCE','parameter'],[35000,'SELECT_EVIDENCE','sample'],
+    [42500,'GROW'],[55500,'TRACE'],[67500,'RECALL'],[82000,'STAY']
+  ];
+  for(const [ms,type,id] of steps){
+    storyRehearsal.push(setTimeout(()=>{
+      if(!storyRehearsing)return;
+      if(id)select(id);
+      actionStory(type,id||null,'SIMULATED');
+      if(type==='STAY')stopRehearsal();
+    },ms));
+  }
+  noteStory('REHEARSAL ONLY / 85s / NOT A GESTURE TEST');
+}
+function storyDownload(){
+  const data=exportRecord(story);
+  const url=URL.createObjectURL(new Blob([data],{type:'application/json'}));
+  const a=document.createElement('a');a.download='MG17-visitor-performance.json';
+  a.href=url;a.click();setTimeout(()=>URL.revokeObjectURL(url),1800);
+}
+el('story-evidence-hotkeys').querySelectorAll('button').forEach(button=>
+  button.addEventListener('click',()=>{
+    enableStoryAudio();handleArtifactPick(button.dataset.evidence,'DESKTOP');
+  })
+);
+el('story-action').addEventListener('click',()=>{
+  enableStoryAudio();const c=nextCue(story);
+  if(c.enabled)actionStory(c.action,null,'DESKTOP');
+});
+el('story-reset').addEventListener('click',resetStory);
+el('story-export').addEventListener('click',storyDownload);
+el('story-rehearse').addEventListener('click',startRehearsal);
+el('story-audio').addEventListener('click',()=>{
+  if(storyMuted)enableStoryAudio();
+  else{storyMuted=true;el('story-audio').textContent='ENABLE AUDIO'}
+});
+el('wireframe-toggle').addEventListener('click',()=>{
+  wireMode=!wireMode;
+  // A real triangle-edge wireframe fallback that preserves the existing
+  // authored dimensions and XR mesh picking; not a fake model screenshot.
+  for(const group of [caseMesh,garden]){
+    group?.traverse(obj=>{
+      if(!obj.isMesh||obj===latchTarget)return;
+      if(obj.material&&'wireframe' in obj.material)obj.material.wireframe=wireMode;
+    });
+  }
+  el('wireframe-toggle').textContent=wireMode?'WIREFRAME / OFF':'WIRE MODE / ON';
+  noteStory('VISUAL MATERIAL / '+(wireMode?'WIREFRAME':'SOLID'));
+});
+function updateStoryClock(now){
+  if(!el('story-clock'))return;
+  const t=story.startedAt===null?0:Math.max(0,Math.round((now-story.startedAt)/1000));
+  const elapsed=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+  el('story-clock').textContent=elapsed+' / 01:25';
+  const status=el('gesture-live');
+  if(status)status.textContent=lastHandStatus;
+}
+function processSceneRay(ray,source){
+  if(!raycaster)return false;
+  const hits=ray.intersectObjects(clickables.filter(x=>x.visible),false);
+  if(hits.length){
+    handleArtifactPick(hits[0].object.userData.artifactId,source);return true;
+  }
+  return false;
+}
+function makeXRPanel(){xrCanvas=document.createElement('canvas');xrCanvas.width=1024;xrCanvas.height=512;xrCtx=xrCanvas.getContext('2d');xrTexture=new THREE.CanvasTexture(xrCanvas);xrTexture.colorSpace=THREE.SRGBColorSpace;xrPanel=mesh(root,new THREE.PlaneGeometry(.85,.425),new THREE.MeshBasicMaterial({map:xrTexture,transparent:true,side:THREE.DoubleSide}),[-1.25,1.45,.8]);updateXRPanel('MG-17 雾庭舱','选择一件证物读取记录 / 通过射线或眼手输入调查。')}
+function wrap(ctx,text,x,y,maxWidth,lineHeight,maxLines){let line='',lines=0;for(const ch of text){if(ctx.measureText(line+ch).width>maxWidth){ctx.fillText(line,x,y);y+=lineHeight;line=ch;lines++;if(lines>=maxLines)return}else line+=ch}if(line)ctx.fillText(line,x,y)}
+function updateXRPanel(title,body){if(!xrCtx)return;const c=xrCtx;c.fillStyle='#f2ecd9';c.fillRect(0,0,1024,512);c.strokeStyle='#738d78';c.lineWidth=7;c.strokeRect(10,10,1004,492);c.fillStyle='#596f60';c.font='28px monospace';c.fillText('SPATIAL TRANSFER BUREAU / MG-17',38,62);c.fillStyle='#22392b';c.font='bold 51px "PingFang SC",sans-serif';c.fillText(title,38,147);c.fillStyle='#354b40';c.font='34px "PingFang SC",sans-serif';wrap(c,body,38,218,940,60,4);xrTexture.needsUpdate=true}
+function resize(){if(!renderer)return;const w=el('stage').clientWidth,h=el('stage').clientHeight;if(!w||!h)return;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false);renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.8))}
+function onCanvasClick(e){if(!renderer||renderer.xr.isPresenting)return;const rect=renderer.domElement.getBoundingClientRect();const pt=new THREE.Vector2(((e.clientX-rect.left)/rect.width)*2-1,-((e.clientY-rect.top)/rect.height)*2+1);raycaster.setFromCamera(pt,camera);processSceneRay(raycaster,'DESKTOP')}
+function pick(ray){return processSceneRay(ray,'XR_RAY')}
+function select(id){const item=ITEMS.find(x=>x.id===id);if(!item)return;state.selected=id;state.seen.add(id);el('infoTitle').textContent=item.name;el('infoCopy').textContent=item.body;el('infoId').textContent=item.code;el('infoType').textContent=item.type;el('infoState').textContent='已识别 / RECOGNIZED';el('stateBadge').textContent='EVIDENCE / '+item.code;updateXRPanel(item.name,item.body);renderUI()}
+function renderUI(){const list=el('objectList');list.innerHTML='';for(const item of ITEMS){const btn=document.createElement('button');btn.className='object-btn'+(state.selected===item.id?' active':'');btn.type='button';btn.innerHTML='<span class="object-num">'+item.code.slice(-2)+'</span><span class="object-name">'+item.name+'</span><span class="object-mark">'+(state.seen.has(item.id)?'✓':'→')+'</span>';btn.addEventListener('click',()=>handleArtifactPick(item.id,'DESKTOP'));list.appendChild(btn)}el('progressText').textContent='已识别 '+state.seen.size+' / '+ITEMS.length+' 件证物';el('progressBar').style.width=(state.seen.size/ITEMS.length*100)+'%';document.querySelectorAll('[data-phase]').forEach(b=>b.classList.toggle('active',Number(b.dataset.phase)===state.phase));el('phaseCopy').textContent=PHASES[state.phase].desc;el('advanceBtn').textContent=['开启调查 / OPEN CASE','启动温室展开 / EXPAND','保存残留记录 / RECORD','再次调查 / RESTART'][state.phase];const diag='PHASE='+state.phase+'  EVIDENCE='+state.seen.size+'/'+ITEMS.length+'  WEBGL='+(state.engine?'OK':'WAIT')+'  VR='+(state.supportedVR?'YES':'NO')+'  AR='+(state.supportedAR?'YES':'NO');el('operatorDiag').textContent=diag}
+function setPhase(n){state.phase=Math.max(0,Math.min(3,n));renderUI();el('sceneHint').textContent=['封存：点击“开启调查”','调查：点击物件或左侧列表查看证物','展开：Ground Zero 从行李箱中心向外显影','遗留：空间回收，留下可追踪档案'][state.phase];if(state.phase===3)updateXRPanel('归档 / UNCLAIMED','温室已经回收。调查记录仍然可以留存，下一位访客可以重新开始。')}
+function reset(){state.seen.clear();state.selected=null;el('infoTitle').textContent='MG-17 雾庭舱';el('infoCopy').textContent='一个被错投的容器。请选择物件，读取它与赛尼亚岛之间的关系。';el('infoId').textContent='MG-17';el('infoType').textContent='便携空间容器';el('infoState').textContent='现场调查中';el('stateBadge').textContent='UNCLAIMED / 未认领';updateXRPanel('MG-17 雾庭舱','选择一件证物读取记录 / 通过射线或眼手输入调查。');setPhase(0)}
+el('advanceBtn').addEventListener('click',()=>{const cue=nextCue(story);if(cue.enabled)actionStory(cue.action,null,'DESKTOP')});
+document.querySelectorAll('[data-phase]').forEach(b=>b.addEventListener('click',()=>setPhase(Number(b.dataset.phase))));
+el('recordBtn').addEventListener('click',async()=>{const text=['MG-17 / 调查摘要','阶段：'+PHASES[state.phase].title,'已识别：'+ITEMS.filter(x=>state.seen.has(x.id)).map(x=>x.name).join('、'),'项目地址：'+location.origin+location.pathname].join('\n');try{await navigator.clipboard.writeText(text);el('recordBtn').textContent='摘要已复制 / COPIED';}catch(e){window.prompt('请复制摘要',text)}});
+function stopAuto(){clearInterval(autoTimer);autoTimer=null;state.auto=false;stopRehearsal();el('autoBtn').textContent='播放完整 85 秒预演'}
+function startAuto(){startRehearsal();el('autoBtn').textContent='独立模拟播放中… / STOP'}
+if(state.operator){el('operator').classList.add('visible');el('resetBtn').addEventListener('click',()=>{stopAuto();reset()});el('autoBtn').addEventListener('click',()=>{if(storyRehearsing){stopRehearsal();el('autoBtn').textContent='播放完整 85 秒预演'}else startAuto()});el('stopBtn').addEventListener('click',stopAuto)}
+window.addEventListener('keydown',e=>{
+ if(e.target instanceof HTMLInputElement||e.target instanceof HTMLTextAreaElement)return;
+ if(e.key.toLowerCase()==='r'){resetStory();return}
+ if(e.key==='Enter'){const c=nextCue(story);if(c.enabled)actionStory(c.action,null,'DESKTOP');return}
+ if(story.stage==='INSPECT'){
+   const id=({1:'ticket',2:'parameter',3:'sample'})[e.key];
+   if(id)handleArtifactPick(id,'DESKTOP');
+ }
+});
+async function XRSupport(){const btn=el('vrBtn'),ar=el('arBtn');if(!window.isSecureContext||!navigator.xr){btn.textContent='此浏览器无 WebXR；可使用桌面版';el('deviceStatus').textContent='DESKTOP / NO WEBXR';renderUI();return}try{state.supportedVR=await navigator.xr.isSessionSupported('immersive-vr');state.supportedAR=await navigator.xr.isSessionSupported('immersive-ar')}catch(e){}btn.disabled=!state.supportedVR;btn.textContent=state.supportedVR?'进入沉浸式 VR / WEBXR':'沉浸式 VR 不可用';ar.style.display=state.supportedAR?'block':'none';ar.disabled=!state.supportedAR;el('deviceStatus').textContent=(state.supportedVR?'VR READY':'DESKTOP')+(state.supportedAR?' / AR READY':'');renderUI()}
+async function enterXR(mode){if(!renderer||!navigator.xr)return;try{enableStoryAudio();const options={optionalFeatures:['local-floor','bounded-floor','hand-tracking']};if(mode==='immersive-ar'){options.optionalFeatures.push('hit-test');scene.background=null;renderer.setClearColor(0x000000,0)}const session=await navigator.xr.requestSession(mode,options);session.addEventListener('end',()=>{scene.background=new THREE.Color(0xc8d0c7);renderer.setClearColor(0xc8d0c7,1);handDecoder.reset();hoverPoint&&(hoverPoint.visible=false);lastHandStatus='XR EXIT / GESTURE RELEASED';el('vrBtn').textContent='进入沉浸式 VR / WEBXR'});await renderer.xr.setSession(session);el('vrBtn').textContent='头显体验中 / EXIT IN DEVICE'}catch(e){el('deviceStatus').textContent='XR FAILED: '+(e.name||'error');if(mode==='immersive-ar'){scene.background=new THREE.Color(0xc8d0c7);renderer.setClearColor(0xc8d0c7,1)}}}
+el('vrBtn').addEventListener('click',()=>enterXR('immersive-vr'));el('arBtn').addEventListener('click',()=>enterXR('immersive-ar'));
+// Actual 25-joint WebXR input. Do not confuse permission request with tracking data.
+const xrRay=new THREE.Raycaster();
+const tmpV=new THREE.Vector3();
+const gazeQuat=new THREE.Quaternion();
+function gazeRay(){
+  if(!renderer?.xr.isPresenting)return null;
+  const eye=renderer.xr.getCamera();
+  if(!eye)return null;
+  eye.updateMatrixWorld(true);
+  const origin=eye.getWorldPosition(new THREE.Vector3());
+  eye.getWorldQuaternion(gazeQuat);
+  const direction=new THREE.Vector3(0,0,-1).applyQuaternion(gazeQuat).normalize();
+  xrRay.set(origin,direction);
+  xrRay.near=.02;xrRay.far=6;
+  return xrRay;
+}
+function updateHeadsetHandFrame(timestamp,xrFrame){
+  if(!renderer?.xr.isPresenting||!xrFrame)return;
+  const session=renderer.xr.getSession(),space=renderer.xr.getReferenceSpace();
+  if(!session||!space)return;
+  const t=Number.isFinite(timestamp)?timestamp:performance.now();
+  const ray=gazeRay();
+  const visibleTargets=clickables.filter(o=>o.visible);
+  const gazeHit=ray?.intersectObjects(visibleTargets,false)?.[0]||null;
+  if(hoverPoint){
+    hoverPoint.visible=Boolean(gazeHit);
+    if(gazeHit){
+      hoverPoint.position.copy(gazeHit.point).addScaledVector(ray.ray.direction,-.012);
+      const eye=renderer.xr.getCamera();
+      hoverPoint.quaternion.copy(eye.quaternion);
+      hoverPoint.material.color.setHex(0xb7ddb8);
+    }
+  }
+  const present=new Set();
+  let tracking=0,nearest=Infinity,pinchLabel='HAND / NOT TRACKED';
+  for(const input of session.inputSources){
+    if(!input.hand)continue;
+    const side=input.handedness==='left'?'left':input.handedness==='right'?'right':'unknown';
+    present.add(side);
+    let thumb=null,index=null;
+    try{
+      const ts=input.hand.get('thumb-tip'),is=input.hand.get('index-finger-tip');
+      if(ts&&is){thumb=xrFrame.getJointPose(ts,space);index=xrFrame.getJointPose(is,space);}
+    }catch(e){/* WebXR may return no pose when hand occluded. */}
+    const a=thumb?.transform?.position,b=index?.transform?.position;
+    const d=a&&b?Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z):null;
+    const data=handDecoder.update(side,d,t);
+    handStates.set(side,data);
+    if(d!==null){tracking++;nearest=Math.min(d,nearest);}
+    for(const gesture of data.events){
+      if(gesture.kind==='PINCH'){
+        if(hoverPoint)hoverPoint.material.color.setHex(0xf3d99e);
+        // Direct fingertip-to-object proximity first. Gaze+pinch is reliable
+        // when the virtual suitcase is too far away for literal contact.
+        let handled=false;
+        if(b){
+          const fingertip=new THREE.Vector3(b.x,b.y,b.z);
+          let candidate=null,distance=.14;
+          for(const o of visibleTargets){
+            o.getWorldPosition(tmpV);
+            const dd=fingertip.distanceTo(tmpV);
+            if(dd<distance){distance=dd;candidate=o;}
+          }
+          if(candidate){
+            handleArtifactPick(candidate.userData.artifactId,'XR_HAND');
+            handled=true;
+          }
+        }
+        if(!handled&&gazeHit){
+          handleArtifactPick(gazeHit.object.userData.artifactId,'XR_HAND');
+          handled=true;
+        }
+        if(!handled)noteStory('XR HAND / PINCH ACCEPTED BUT NO INTERACTIVE TARGET IN GAZE');
+      }else if(gesture.kind==='TRACKING_LOST'){
+        noteStory('XR '+side.toUpperCase()+' / TRACKING LOST — NO PHANTOM SELECT');
+      }
+    }
+  }
+  for(const side of ['left','right','unknown']){
+    if(!present.has(side)&&handStates.has(side)){
+      const lost=handDecoder.update(side,null,t);
+      handStates.set(side,lost);
+      for(const event of lost.events)
+        if(event.kind==='TRACKING_LOST')noteStory('XR '+side.toUpperCase()+' / LOST / RELEASE');
+    }
+  }
+  if(tracking>0){
+    const mm=Math.round(nearest*1000);
+    const p=Math.round(Math.max(0,...[...handStates.values()].map(x=>x.progress||0))*100);
+    pinchLabel='WEBXR '+tracking+' HAND(S) · '+mm+'mm · PINCH '+p+'%';
+  }else if(session.inputSources.length>0){
+    pinchLabel='XR INPUT / '+session.inputSources.length+' SOURCE(S) · CONTROLLER FALLBACK';
+  }
+  lastHandStatus=pinchLabel;
+}
+const clock=new THREE.Clock();let lidValue=0,domeValue=0,gardenValue=0;
+let lastStatusAt=0;
+function tick(now,xrFrame){
+  if(!renderer)return;
+  const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;
+  controls.enabled=!renderer.xr.isPresenting;
+  if(controls.enabled)controls.update();
+  const visual=cueRender(story);
+  if(lid){
+    const target=story.stage==='RECOVERY'?.42:story.stage==='HABITATION'?.85:visual.lid;
+    lidValue=THREE.MathUtils.damp(lidValue,target,3.4,dt);
+    lid.rotation.x=-lidValue*1.85;
+  }
+  domeValue=THREE.MathUtils.damp(domeValue,visual.dome,1.8,dt);
+  gardenValue=THREE.MathUtils.damp(gardenValue,visual.garden,1.4,dt);
+  if(dome){
+    dome.scale.setScalar(Math.max(.001,domeValue));
+    dome.visible=domeValue>.006;
+    dome.rotation.y=time*.02; // slow intentional motion, never a generic fast spin
+  }
+  if(garden){
+    garden.scale.setScalar(Math.max(.001,gardenValue));
+    garden.visible=gardenValue>.006;
+  }
+  if(coreLight)coreLight.intensity=visual.light*5;
+  if(ghostTraces){
+    ghostTraces.visible=visual.ghost>.001;
+    ghostMaterial.opacity=THREE.MathUtils.damp(ghostMaterial.opacity,visual.ghost*.72,2.3,dt);
+    ghostTraces.rotation.y=.09+time*.01;
+  }
+  if(xrPanel){
+    xrPanel.visible=renderer.xr.isPresenting;
+    const viewer=renderer.xr.isPresenting?
+      renderer.xr.getCamera().getWorldPosition(new THREE.Vector3()):camera.position;
+    xrPanel.lookAt(viewer);
+  }
+  if(cueTarget){
+    const viewer=renderer.xr.isPresenting?
+      renderer.xr.getCamera().getWorldPosition(new THREE.Vector3()):camera.position;
+    cueTarget.lookAt(viewer);
+    cueTarget.visible=true;
+  }
+  for(let i=0;i<clickables.length;i++){
+    const m=clickables[i];
+    if(Number.isFinite(m.userData.baseY))
+      m.position.y=m.userData.baseY+
+        Math.sin(time*1.3+i)*.005*(story.stage!=='MISDELIVERED'?1:0);
+    if(m.material?.emissive&&typeof m.material.emissiveIntensity==='number'){
+      const focus=story.seen.includes(m.userData.artifactId);
+      m.material.emissiveIntensity=focus?.55:story.stage==='INSPECT'?.20:.10;
+    }
+  }
+  scene.updateMatrixWorld(true);
+  if(renderer.xr.isPresenting)updateHeadsetHandFrame(now,xrFrame);
+  if(captionItem&&now>captionUntil&&story.stage==='INSPECT'){
+    captionItem=null;
+    const b=currentBeat(story),cue=nextCue(story);
+    updateXRPanel(b.zh,b.instruction+'\n'+cue.label);
+  }
+  if(Number.isFinite(now)&&now-lastStatusAt>=150){
+    updateStoryClock(now);lastStatusAt=now;
+  }
+  renderer.render(scene,camera);
+}
+try{buildScene()}catch(e){el('fallback').style.display='block';el('renderStatus').textContent='WEBGL ERROR';console.error(e)}renderUI();if(state.engine)syncStory();XRSupport();
+</script>
+</body>
+</html>
