@@ -1,0 +1,39 @@
+name: MG17 Three-Live independent viewer benchmark
+on:
+  pull_request:
+    paths:
+      - 'xr/three-live-eval/**'
+      - '.github/workflows/three-live-benchmark.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'xr/three-live-eval/**'
+      - '.github/workflows/three-live-benchmark.yml'
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install isolated Chromium tester
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Serve same original GLB to both viewers
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/mg17-live.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8765/assets/models/glb/mistgarden-case.glb >/dev/null
+      - name: Baseline GLTF parse and Three-Live registration comparison
+        run: node xr/three-live-eval/browser-smoke.cjs
+      - name: Store side by side evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mg17-three-live-browser-benchmark
+          path: mg17-three-live-ab.png
+          if-no-files-found: ignore
+          retention-days: 14
