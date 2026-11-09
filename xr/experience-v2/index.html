@@ -496,6 +496,101 @@ window.addEventListener('keydown',e=>{
 async function XRSupport(){const btn=el('vrBtn'),ar=el('arBtn');if(!window.isSecureContext||!navigator.xr){btn.textContent='此浏览器无 WebXR；可使用桌面版';el('deviceStatus').textContent='DESKTOP / NO WEBXR';renderUI();return}try{state.supportedVR=await navigator.xr.isSessionSupported('immersive-vr');state.supportedAR=await navigator.xr.isSessionSupported('immersive-ar')}catch(e){}btn.disabled=!state.supportedVR;btn.textContent=state.supportedVR?'进入沉浸式 VR / WEBXR':'沉浸式 VR 不可用';ar.style.display=state.supportedAR?'block':'none';ar.disabled=!state.supportedAR;el('deviceStatus').textContent=(state.supportedVR?'VR READY':'DESKTOP')+(state.supportedAR?' / AR READY':'');renderUI()}
 async function enterXR(mode){if(!renderer||!navigator.xr)return;try{enableStoryAudio();const options={optionalFeatures:['local-floor','bounded-floor','hand-tracking']};if(mode==='immersive-ar'){options.optionalFeatures.push('hit-test');scene.background=null;renderer.setClearColor(0x000000,0)}const session=await navigator.xr.requestSession(mode,options);session.addEventListener('end',()=>{scene.background=new THREE.Color(0xc8d0c7);renderer.setClearColor(0xc8d0c7,1);handDecoder.reset();hoverPoint&&(hoverPoint.visible=false);lastHandStatus='XR EXIT / GESTURE RELEASED';el('vrBtn').textContent='进入沉浸式 VR / WEBXR'});await renderer.xr.setSession(session);el('vrBtn').textContent='头显体验中 / EXIT IN DEVICE'}catch(e){el('deviceStatus').textContent='XR FAILED: '+(e.name||'error');if(mode==='immersive-ar'){scene.background=new THREE.Color(0xc8d0c7);renderer.setClearColor(0xc8d0c7,1)}}}
 el('vrBtn').addEventListener('click',()=>enterXR('immersive-vr'));el('arBtn').addEventListener('click',()=>enterXR('immersive-ar'));
+// Actual 25-joint WebXR input. Do not confuse permission request with tracking data.
+const xrRay=new THREE.Raycaster();
+const tmpV=new THREE.Vector3();
+const gazeQuat=new THREE.Quaternion();
+function gazeRay(){
+  if(!renderer?.xr.isPresenting)return null;
+  const eye=renderer.xr.getCamera();
+  if(!eye)return null;
+  eye.updateMatrixWorld(true);
+  const origin=eye.getWorldPosition(new THREE.Vector3());
+  eye.getWorldQuaternion(gazeQuat);
+  const direction=new THREE.Vector3(0,0,-1).applyQuaternion(gazeQuat).normalize();
+  xrRay.set(origin,direction);
+  xrRay.near=.02;xrRay.far=6;
+  return xrRay;
+}
+function updateHeadsetHandFrame(timestamp,xrFrame){
+  if(!renderer?.xr.isPresenting||!xrFrame)return;
+  const session=renderer.xr.getSession(),space=renderer.xr.getReferenceSpace();
+  if(!session||!space)return;
+  const t=Number.isFinite(timestamp)?timestamp:performance.now();
+  const ray=gazeRay();
+  const visibleTargets=clickables.filter(o=>o.visible);
+  const gazeHit=ray?.intersectObjects(visibleTargets,false)?.[0]||null;
+  if(hoverPoint){
+    hoverPoint.visible=Boolean(gazeHit);
+    if(gazeHit){
+      hoverPoint.position.copy(gazeHit.point).addScaledVector(ray.ray.direction,-.012);
+      const eye=renderer.xr.getCamera();
+      hoverPoint.quaternion.copy(eye.quaternion);
+      hoverPoint.material.color.setHex(0xb7ddb8);
+    }
+  }
+  const present=new Set();
+  let tracking=0,nearest=Infinity,pinchLabel='HAND / NOT TRACKED';
+  for(const input of session.inputSources){
+    if(!input.hand)continue;
+    const side=input.handedness==='left'?'left':input.handedness==='right'?'right':'unknown';
+    present.add(side);
+    let thumb=null,index=null;
+    try{
+      const ts=input.hand.get('thumb-tip'),is=input.hand.get('index-finger-tip');
+      if(ts&&is){thumb=xrFrame.getJointPose(ts,space);index=xrFrame.getJointPose(is,space);}
+    }catch(e){/* WebXR may return no pose when hand occluded. */}
+    const a=thumb?.transform?.position,b=index?.transform?.position;
+    const d=a&&b?Math.hypot(a.x-b.x,a.y-b.y,a.z-b.z):null;
+    const data=handDecoder.update(side,d,t);
+    handStates.set(side,data);
+    if(d!==null){tracking++;nearest=Math.min(d,nearest);}
+    for(const gesture of data.events){
+      if(gesture.kind==='PINCH'){
+        if(hoverPoint)hoverPoint.material.color.setHex(0xf3d99e);
+        // Direct fingertip-to-object proximity first. Gaze+pinch is reliable
+        // when the virtual suitcase is too far away for literal contact.
+        let handled=false;
+        if(b){
+          const fingertip=new THREE.Vector3(b.x,b.y,b.z);
+          let candidate=null,distance=.14;
+          for(const o of visibleTargets){
+            o.getWorldPosition(tmpV);
+            const dd=fingertip.distanceTo(tmpV);
+            if(dd<distance){distance=dd;candidate=o;}
+          }
+          if(candidate){
+            handleArtifactPick(candidate.userData.artifactId,'XR_HAND');
+            handled=true;
+          }
+        }
+        if(!handled&&gazeHit){
+          handleArtifactPick(gazeHit.object.userData.artifactId,'XR_HAND');
+          handled=true;
+        }
+        if(!handled)noteStory('XR HAND / PINCH ACCEPTED BUT NO INTERACTIVE TARGET IN GAZE');
+      }else if(gesture.kind==='TRACKING_LOST'){
+        noteStory('XR '+side.toUpperCase()+' / TRACKING LOST — NO PHANTOM SELECT');
+      }
+    }
+  }
+  for(const side of ['left','right','unknown']){
+    if(!present.has(side)&&handStates.has(side)){
+      const lost=handDecoder.update(side,null,t);
+      handStates.set(side,lost);
+      for(const event of lost.events)
+        if(event.kind==='TRACKING_LOST')noteStory('XR '+side.toUpperCase()+' / LOST / RELEASE');
+    }
+  }
+  if(tracking>0){
+    const mm=Math.round(nearest*1000);
+    const p=Math.round(Math.max(0,...[...handStates.values()].map(x=>x.progress||0))*100);
+    pinchLabel='WEBXR '+tracking+' HAND(S) · '+mm+'mm · PINCH '+p+'%';
+  }else if(session.inputSources.length>0){
+    pinchLabel='XR INPUT / '+session.inputSources.length+' SOURCE(S) · CONTROLLER FALLBACK';
+  }
+  lastHandStatus=pinchLabel;
+}
 const clock=new THREE.Clock();let lidValue=0,domeValue=0,gardenValue=0;
 function tick(){if(!renderer)return;const dt=Math.min(clock.getDelta(),.05),time=clock.elapsedTime;controls.enabled=!renderer.xr.isPresenting;if(controls.enabled)controls.update();if(lid){lidValue=THREE.MathUtils.damp(lidValue,state.phase===0?0:1,3.8,dt);lid.rotation.x=-lidValue*1.85}domeValue=THREE.MathUtils.damp(domeValue,state.phase===2?1:state.phase===3?.18:0,2.1,dt);gardenValue=THREE.MathUtils.damp(gardenValue,state.phase===2?1:state.phase===3?.2:0,1.5,dt);if(dome){dome.scale.setScalar(Math.max(.001,domeValue));dome.visible=domeValue>.006;dome.rotation.y=time*.04}if(garden){garden.scale.setScalar(Math.max(.001,gardenValue));garden.visible=gardenValue>.006}if(coreLight)coreLight.intensity=domeValue*6;if(xrPanel){xrPanel.visible=renderer.xr.isPresenting;xrPanel.lookAt(renderer.xr.isPresenting?renderer.xr.getCamera().position:camera.position)}if(clickables.length){clickables.forEach((m,i)=>{m.position.y=m.userData.baseY+Math.sin(time*1.8+i)*.009*(state.phase?1:0);if(m.material.emissive&&m.material.emissiveIntensity!==undefined)m.material.emissiveIntensity=state.selected===m.userData.artifactId ? .7 : .2})}renderer.render(scene,camera)}
 try{buildScene()}catch(e){el('fallback').style.display='block';el('renderStatus').textContent='WEBGL ERROR';console.error(e)}renderUI();XRSupport();
