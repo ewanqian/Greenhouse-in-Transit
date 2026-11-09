@@ -50,6 +50,18 @@ const {chromium}=require('playwright');
   await phone.locator('#story-action').click();
   assert.match(await phone.locator('#beat-title').innerText(),/箱内调查/);
   assert.equal(await phone.locator('#beat-rail .beat').count(),6);
+  assert.equal(await phone.locator('#story-evidence-hotkeys').isVisible(),true);
+  assert.equal(await phone.locator('#story-action').isEnabled(),false);
+  for(const id of ['ticket','parameter','sample'])
+    await phone.locator('#story-evidence-hotkeys [data-evidence="'+id+'"]').click();
+  assert.equal(await phone.locator('#story-action').isEnabled(),true);
+  await phone.locator('#story-action').click();
+  assert.match(await phone.locator('#beat-title').innerText(),/植物显影/);
+  const stageOrder=await phone.evaluate(()=>{
+    const stage=document.querySelector('main.scene'),sidebar=document.querySelector('.layout > aside');
+    return [getComputedStyle(stage).order,getComputedStyle(sidebar).order];
+  });
+  assert.deepEqual(stageOrder,['1','2']);
   await phone.screenshot({path:'mg17-v2-mobile.png',fullPage:true});
   if(errors.length)throw new Error('Browser errors: '+errors.join('\n'));
   console.log('PASS: Desktop+Mobile actual WebGL rendered, 3 evidence locks, 6 authored beats, reset, wireframe and JSON export.');
