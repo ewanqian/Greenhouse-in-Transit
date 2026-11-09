@@ -11,7 +11,7 @@ on:
       - '.github/workflows/experience-v2-qa.yml'
 jobs:
   source:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,7 @@ jobs:
           console.log('Standalone six-beat visitor loop and immutable original baseline verified');
           NODE
   browser:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 12
     needs: source
     steps:
