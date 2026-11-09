@@ -1,0 +1,65 @@
+name: MG17 Visitor Performance v2 source and browser QA
+on:
+  pull_request:
+    paths:
+      - 'xr/experience-v2/**'
+      - '.github/workflows/experience-v2-qa.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'xr/experience-v2/**'
+      - '.github/workflows/experience-v2-qa.yml'
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --check xr/experience-v2/score.mjs
+      - run: node --test xr/experience-v2/score.test.mjs
+      - name: Verify source boundaries
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const text=fs.readFileSync('xr/experience-v2/index.html','utf8');
+          const orig=fs.readFileSync('xr/ground-zero.html','utf8');
+          const required=['story-action','story-reset','story-export','story-rehearse','beat-rail','evidence-status','gesture-live'];
+          for(const id of required)if(!text.includes('id="'+id+'"'))throw new Error('Missing '+id);
+          if(!text.includes('getJointPose')||!text.includes('getReferenceSpace'))throw new Error('Not a real WebXR hand implementation');
+          if(text.includes('XR hand tested on Quest'))throw new Error('False hardware claim');
+          if(orig.includes('experience-v2/score.mjs'))throw new Error('Baseline ground-zero must be independent');
+          console.log('Standalone six-beat visitor loop and immutable original baseline verified');
+          NODE
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    needs: source
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Playwright Chromium
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Local server
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/mg17-performance.log 2>&1 &
+          sleep 2
+          curl -fsS http://127.0.0.1:8765/xr/experience-v2/score.mjs >/dev/null
+      - name: Browser-stage six-beat test
+        run: node xr/experience-v2/browser-smoke.cjs
+      - name: Attach user-reviewable screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mg17-experience-v2-captures
+          path: |
+            mg17-v2-desktop.png
+            mg17-v2-mobile.png
+          if-no-files-found: ignore
+          retention-days: 14
