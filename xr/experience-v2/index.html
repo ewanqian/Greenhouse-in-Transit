@@ -255,6 +255,204 @@ for(let i=0;i<2;i++){const controller=renderer.xr.getController(i);root.parent.a
 renderer.setAnimationLoop(tick);
 const observer=new ResizeObserver(resize);observer.observe(el('stage'));resize();state.engine=true;el('renderStatus').textContent='WEBGL / ACTIVE';el('fallback').style.display='none';
 }
+// --- AUTHOR-LOCKED MG17 VISITOR LOOP / not an automatic slide deck ---
+function noteStory(message){
+  const t=new Date().toLocaleTimeString();
+  storyEvents.unshift(t+'  '+message);
+  if(storyEvents.length>12)storyEvents.length=12;
+  el('experience-log').textContent=storyEvents.join('\n');
+}
+function enableStoryAudio(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return false;
+    if(!storyAudio)storyAudio=new AC({latencyHint:'interactive'});
+    void storyAudio.resume().catch(()=>{});
+    storyMuted=false;
+    el('story-audio').textContent='MUTE SOUND';
+    return true;
+  }catch(e){noteStory('AUDIO NOT AVAILABLE / '+e.message);return false}
+}
+function soundCue(type){
+  if(storyMuted||!storyAudio||storyAudio.state!=='running')return;
+  const ctx=storyAudio,t=ctx.currentTime+.008;
+  const rootFreq={OPEN_CASE:174.61,SELECT_EVIDENCE:293.66,GROW:130.81,
+    TRACE:392,RECALL:98,STAY:261.63}[type]||196;
+  const duration=type==='GROW'?2.5:type==='RECALL'?1.8:type==='STAY'?2.6:.46;
+  const voices=type==='GROW'?[1,1.5,2.01,2.99]:
+    type==='RECALL'?[1,.78,1.62]:[1,1.499,2.005];
+  const bus=ctx.createGain(),filter=ctx.createBiquadFilter();
+  const comp=ctx.createDynamicsCompressor();
+  comp.threshold.value=-20;comp.ratio.value=12;comp.attack.value=.004;
+  filter.type='lowpass';filter.frequency.value=type==='RECALL'?1250:2350;
+  bus.gain.setValueAtTime(.0001,t);
+  bus.gain.exponentialRampToValueAtTime(.07,t+.055);
+  bus.gain.exponentialRampToValueAtTime(.0001,t+duration);
+  bus.connect(filter);filter.connect(comp);comp.connect(ctx.destination);
+  for(let i=0;i<voices.length;i++){
+    const o=ctx.createOscillator(),g=ctx.createGain();
+    o.type=i===0?'triangle':'sine';
+    o.frequency.value=rootFreq*voices[i];
+    g.gain.value=.26/voices.length;
+    o.connect(g);g.connect(bus);
+    o.start(t);o.stop(t+duration+.035);
+    o.onended=()=>{try{o.disconnect();g.disconnect()}catch{}};
+  }
+  setTimeout(()=>{try{bus.disconnect();filter.disconnect();comp.disconnect()}catch{}},
+    (duration+.20)*1000);
+}
+function paintCue(){
+  if(!cueCtx||!cueTarget)return;
+  const cue=nextCue(story),label=cue.label;
+  if(lastStoryCue===label)return;
+  lastStoryCue=label;
+  cueCtx.clearRect(0,0,768,176);
+  cueCtx.fillStyle=cue.enabled?'#f0f5e9':'#d7ded3';
+  cueCtx.fillRect(0,0,768,176);
+  cueCtx.strokeStyle=cue.enabled?'#6c9878':'#a2b3a5';
+  cueCtx.lineWidth=8;cueCtx.strokeRect(5,5,758,166);
+  cueCtx.fillStyle='#37634b';cueCtx.font='28px monospace';
+  cueCtx.fillText('STB / MG-17 · PINCH OR SELECT',27,49);
+  cueCtx.font='bold 41px "PingFang SC",sans-serif';
+  cueCtx.fillText(label.slice(0,31),27,116);
+  cueCtx.font='22px monospace';
+  cueCtx.fillText(story.stage+' / '+(cue.enabled?'ARMED':'EVIDENCE LOCK'),27,152);
+  cueTexture.needsUpdate=true;
+  cueTarget.material.opacity=cue.enabled?1:.68;
+}
+function syncStory(){
+  const b=currentBeat(story),p=cueProgress(story),cue=nextCue(story);
+  const stageToOld={MISDELIVERED:0,INSPECT:1,BLOOM:2,AFTERIMAGE:2,RECOVERY:3,HABITATION:2};
+  setPhase(stageToOld[story.stage]||0);
+  el('beat-index').textContent='BEAT '+String(p.beatIndex+1).padStart(2,'0')+' / 06';
+  el('beat-title').textContent=b.zh;
+  el('beat-instruction').textContent=b.instruction;
+  el('story-state-badge').textContent=b.en+' / '+String(p.beatIndex+1).padStart(2,'0');
+  el('story-action').textContent=cue.label;
+  el('story-action').disabled=!cue.enabled;
+  el('story-action').dataset.action=cue.action;
+  el('evidence-status').textContent=EVIDENCE.map(id=>
+    (story.seen.includes(id)?'✓ ':'○ ')+
+    ({ticket:'01 / TICKET',parameter:'02 / CLIMATE',sample:'03 / BOTANICAL'}[id]))
+    .join('   ')+'  ·  '+story.seen.length+'/3';
+  el('sceneHint').textContent='操作：对准空间中的光标或锁扣捏合；调查阶段选择票据、参数卡、植物样本';
+  const bar=el('beat-rail');bar.replaceChildren();
+  BEATS.forEach((x,i)=>{
+    const d=document.createElement('div');d.className='beat'+(i<p.beatIndex?' done':i===p.beatIndex?' active':'');
+    d.setAttribute('aria-label',x.zh);bar.appendChild(d);
+  });
+  latchTarget&&(latchTarget.visible=story.stage==='MISDELIVERED');
+  paintCue();
+  updateXRPanel(b.zh,b.instruction+'\n'+cue.label);
+  if(story.stage==='HABITATION')el('story-action').textContent='新一位观众 / RESET';
+}
+function actionStory(type,id=null,source='DESKTOP'){
+  if(type==='RESET'){resetStory();return true;}
+  const now=performance.now();
+  if(source.startsWith('XR')&&now-lastStoryAction<260)return false;
+  const before=story.stage;
+  const next=storyReduce(story,{type,id,source,t_ms:now});
+  if(next===story){
+    if(type==='GROW'&&story.stage==='INSPECT')noteStory('WAIT / THREE EVIDENCE REQUIRED ('+story.seen.length+'/3)');
+    return false;
+  }
+  story=next;lastStoryAction=now;
+  noteStory(source+' / '+type+(id?' · '+id:'')+
+    (before!==story.stage?' → '+story.stage:''));
+  if(before!==story.stage)syncStory();
+  else{
+    el('evidence-status').textContent=EVIDENCE.map(x=>(story.seen.includes(x)?'✓ ':'○ ')+x).join(' · ');
+    paintCue();
+    if(story.stage==='INSPECT')syncStory();
+  }
+  soundCue(type);
+  return true;
+}
+function handleArtifactPick(id,source){
+  if(id==='latch'){
+    if(story.stage==='MISDELIVERED')actionStory('OPEN_CASE',null,source);
+    return;
+  }
+  if(id==='cue'){
+    const c=nextCue(story);
+    if(c.enabled)actionStory(c.action,null,source);
+    else noteStory('LOCKED / '+c.label);
+    return;
+  }
+  if(id==='core'&&story.stage==='INSPECT'&&readyToGrow(story)){
+    actionStory('GROW',null,source);select(id);return;
+  }
+  if(story.stage==='INSPECT'){
+    if(EVIDENCE.includes(id)){select(id);actionStory('SELECT_EVIDENCE',id,source);}
+    else if(ITEMS.some(x=>x.id===id)){select(id);noteStory('OPTIONAL PROP / '+id);}
+  }else if(ITEMS.some(x=>x.id===id)){
+    select(id);noteStory('OBJECT / '+id+' (BEAT LOCKED)');
+  }
+}
+function resetStory(){
+  stopRehearsal();
+  story=initialStory();
+  storyEvents.length=0;el('experience-log').textContent='RESET / READY';
+  handDecoder.reset();handStates.clear();lastStoryCue='';
+  lastStoryAction=0;lastHandStatus='HAND / NOT TRACKED';
+  reset();syncStory();
+}
+function stopRehearsal(){
+  storyRehearsal.forEach(clearTimeout);storyRehearsal=[];
+  storyRehearsing=false;el('story-rehearse').textContent='REHEARSE 85s';
+}
+function startRehearsal(){
+  if(storyRehearsing){stopRehearsal();return;}
+  resetStory();storyRehearsing=true;el('story-rehearse').textContent='STOP REHEARSAL';
+  // Stage cue script, not a human action. No automatic path on normal launch.
+  const steps=[
+    [7500,'OPEN_CASE'],[17500,'SELECT_EVIDENCE','ticket'],
+    [25500,'SELECT_EVIDENCE','parameter'],[35000,'SELECT_EVIDENCE','sample'],
+    [42500,'GROW'],[55500,'TRACE'],[67500,'RECALL'],[82000,'STAY']
+  ];
+  for(const [ms,type,id] of steps){
+    storyRehearsal.push(setTimeout(()=>{
+      if(!storyRehearsing)return;
+      if(id)select(id);
+      actionStory(type,id||null,'SIMULATED');
+      if(type==='STAY')stopRehearsal();
+    },ms));
+  }
+  noteStory('REHEARSAL ONLY / 85s / NOT A GESTURE TEST');
+}
+function storyDownload(){
+  const data=exportRecord(story);
+  const url=URL.createObjectURL(new Blob([data],{type:'application/json'}));
+  const a=document.createElement('a');a.download='MG17-visitor-performance.json';
+  a.href=url;a.click();setTimeout(()=>URL.revokeObjectURL(url),1800);
+}
+el('story-action').addEventListener('click',()=>{
+  enableStoryAudio();const c=nextCue(story);
+  if(c.enabled)actionStory(c.action,null,'DESKTOP');
+});
+el('story-reset').addEventListener('click',resetStory);
+el('story-export').addEventListener('click',storyDownload);
+el('story-rehearse').addEventListener('click',startRehearsal);
+el('story-audio').addEventListener('click',()=>{
+  if(storyMuted)enableStoryAudio();
+  else{storyMuted=true;el('story-audio').textContent='ENABLE AUDIO'}
+});
+function updateStoryClock(now){
+  if(!el('story-clock'))return;
+  const t=story.startedAt===null?0:Math.max(0,Math.round((now-story.startedAt)/1000));
+  const elapsed=String(Math.floor(t/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0');
+  el('story-clock').textContent=elapsed+' / 01:25';
+  const status=el('gesture-live');
+  if(status)status.textContent=lastHandStatus;
+}
+function processSceneRay(ray,source){
+  if(!raycaster)return false;
+  const hits=ray.intersectObjects(clickables.filter(x=>x.visible),false);
+  if(hits.length){
+    handleArtifactPick(hits[0].object.userData.artifactId,source);return true;
+  }
+  return false;
+}
 function makeXRPanel(){xrCanvas=document.createElement('canvas');xrCanvas.width=1024;xrCanvas.height=512;xrCtx=xrCanvas.getContext('2d');xrTexture=new THREE.CanvasTexture(xrCanvas);xrTexture.colorSpace=THREE.SRGBColorSpace;xrPanel=mesh(root,new THREE.PlaneGeometry(.85,.425),new THREE.MeshBasicMaterial({map:xrTexture,transparent:true,side:THREE.DoubleSide}),[-1.25,1.45,.8]);updateXRPanel('MG-17 雾庭舱','选择一件证物读取记录 / 通过射线或眼手输入调查。')}
 function wrap(ctx,text,x,y,maxWidth,lineHeight,maxLines){let line='',lines=0;for(const ch of text){if(ctx.measureText(line+ch).width>maxWidth){ctx.fillText(line,x,y);y+=lineHeight;line=ch;lines++;if(lines>=maxLines)return}else line+=ch}if(line)ctx.fillText(line,x,y)}
 function updateXRPanel(title,body){if(!xrCtx)return;const c=xrCtx;c.fillStyle='#f2ecd9';c.fillRect(0,0,1024,512);c.strokeStyle='#738d78';c.lineWidth=7;c.strokeRect(10,10,1004,492);c.fillStyle='#596f60';c.font='28px monospace';c.fillText('SPATIAL TRANSFER BUREAU / MG-17',38,62);c.fillStyle='#22392b';c.font='bold 51px "PingFang SC",sans-serif';c.fillText(title,38,147);c.fillStyle='#354b40';c.font='34px "PingFang SC",sans-serif';wrap(c,body,38,218,940,60,4);xrTexture.needsUpdate=true}
