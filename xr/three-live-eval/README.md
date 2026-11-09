@@ -17,10 +17,12 @@ Should the Google-hosted, unofficial **Three-Live / XR-Live** replace the existi
 ## Implemented spike
 
 `xr/three-live-eval/index.html` displays ONE existing tiny `assets/models/glb/mistgarden-case.glb` through **two viewers**:
-1. Three.js 0.165.0 + GLTFLoader + OrbitControls, against the original GitHub Pages model path.
-2. Official hosted `three-live-viewer.min.js` + `<three-live src="..." ios-src="...">` with camera-controls / optional platform AR button.
+1. Three.js 0.165.0 + GLTFLoader + OrbitControls, against the experiment-only validated GLB.
+2. Official hosted `three-live-viewer.min.js` + `<three-live src="./mistgarden-case-validated.glb">` with camera-controls. AR and actual native USDZ parity are not evaluated by this one-file browser test.
 
 This path is **experiment-only** and is not linked from `mg17-intake.html` or loaded by `xr/experience-v2/index.html`. It has no access to the user's private documents, no external model uploads, and no script compilation of untrusted LLM code.
+
+**Source asset finding / 2026-11-09:** the original 2,344-byte GLB was malformed: its first JSON chunk ended with a NUL 0x00 alignment byte rather than the glTF 2.0 required SPACE 0x20. This makes some strict Three.js GLTFLoader implementations fail JSON.parse before Three-Live can even be compared. We verified the error by reading the actual GLB binary and its first JSON chunk (one mesh with 48 vertices/72 indices). **The original stays untouched** at assets/models/glb/mistgarden-case.glb. A new one-byte-repaired binary lives solely at xr/three-live-eval/mistgarden-case-validated.glb; both viewers are given that exact same corrected file. The geometry bytes, model and materials are unchanged. Khronos primary spec: https://github.com/KhronosGroup/glTF/blob/main/specification/2.0/Specification.adoc#4432-structured-json-content
 
 Source model size: approximately 2.3 KB and NOT a production-quality 3D botanical case; its visual quality does not establish high-quality renderer output. The USDZ placeholder is similarly tiny. The test's first job is basic glTF parse and viewer compatibility.
 
