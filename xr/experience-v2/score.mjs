@@ -106,7 +106,9 @@ export class PinchDwell{
      if(s.unknownAt===null)s.unknownAt=t;
      if(t-s.unknownAt>=this.missingMs){
        if(s.active)events.push({kind:'TRACKING_LOST',hand:id,t_ms:t});
-       s.active=false;s.rearm=true;s.candidateAt=null;
+       // A missing tracked hand is UNKNOWN, not evidence of a deliberate lift.
+       // Require observed distance > release threshold before rearming.
+       s.active=false;s.rearm=false;s.candidateAt=null;
      }
    }else{
      s.lastSeen=t;s.unknownAt=null;
